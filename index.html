@@ -279,9 +279,9 @@
       //setting up a scale for the bubble size
       for (type in size_types_desired) {
           size_types_desired[type].scale = d3.scale.linear()
-              .domain([0, d3.max(rows, function(d){return d.texpenses;})])
+              .domain([0, d3.max(rows, function(d){return d[type];})])
               //defining a minimum bubble size
-              .range([2, 20]);
+              .range([2, 10]);
 
       }
 
