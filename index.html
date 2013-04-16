@@ -29,10 +29,45 @@
     var action_container = jQuery('#sorts');
     var size_types_desired = {};
     var active_size_type = false;
-    var POSSIBLE_VISUALIZATIONS = [
-        'force',
-        'map'
-    ];
+    var possible_visualizations = {
+        'force' : {
+            'start': function() {
+              containers
+                .transition()
+                .duration(1000)
+                  .attr('transform', function(d, i) {
+                    var element = containers[0][i];
+                    return "translate(" + element.x + "," + element.y + ")"
+                    })
+                  .each('end', function() { force.start(); });
+              force.stop();
+            },
+            'stop': function() {
+                force.stop();
+            }
+        },
+        'map' : {
+            'start': function() {
+                containers
+                    .transition()
+                    .duration(1000)
+                    .attr('transform', function(d) {
+                        if (d.lon && d.lat ) { 
+                            var lat_lon = projection([d.lon, d.lat]);
+                        } else if (d.state) {   
+                            var lat_lon = calculate_center_of_state(d.state)
+                        } else {
+                            return;
+                        }
+                        d.px = lat_lon[0];
+                        d.py = lat_lon[1];
+                        return 'translate(' + lat_lon[0] + ',' + lat_lon[1] + ')';
+                });
+            },
+            'stop': function() {
+            }
+        }
+    };
     // this array says which visualizations we want. they must match those in POSSIBLE_VISUALIZATIONS
     var desired_visualizations = [
         'force',
@@ -40,7 +75,6 @@
     ]
 
     var active_visualization;
-    _created_visualizations = {}; //this holds the start and stop functions for the different visualizations
 
     var rows;
     var force;
@@ -162,7 +196,7 @@
       create_visualization_buttons(desired_visualizations);
       rows = dataset;
       drawGraph(rows);
-      _created_visualizations[active_visualization].start();
+      possible_visualizations[active_visualization].start();
     }
 
     function create_visualization_buttons(desired_visualizations) {
@@ -171,51 +205,7 @@
             if (!active_visualization) {
                 active_visualization = desired_visualizations[i];
             }
-            switch (desired_visualizations[i]) {
-                case 'force':
-                    create_visualization_button('force');
-                    _created_visualizations.force = {
-                        'start': function() {
-                          containers
-                            .transition()
-                            .duration(1000)
-                              .attr('transform', function(d, i) {
-                                var element = containers[0][i];
-                                return "translate(" + element.x + "," + element.y + ")"
-                                })
-                              .each('end', function() { force.start(); });
-                          force.stop();
-                        },
-                        'stop': function() {
-                            force.stop();
-                        }
-                    };
-                    break;
-                case 'map':
-                    create_visualization_button('map');
-                    _created_visualizations.map = {
-                        'start': function() {
-                            containers
-                                .transition()
-                                .duration(1000)
-                                .attr('transform', function(d) {
-                                    if (d.lon && d.lat ) { 
-                                        var lat_lon = projection([d.lon, d.lat]);
-                                    } else if (d.state) {   
-                                        var lat_lon = calculate_center_of_state(d.state)
-                                    } else {
-                                        return;
-                                    }
-                                    d.px = lat_lon[0];
-                                    d.py = lat_lon[1];
-                                    return 'translate(' + lat_lon[0] + ',' + lat_lon[1] + ')';
-                            });
-                        },
-                        'stop': function() {
-                        }
-                    };
-                    break;
-            }
+            create_visualization_button(desired_visualizations[i]);
         }
     }
 
@@ -224,10 +214,10 @@
             (function(type) {
                  element.click(function() {
                      if (active_visualization) {
-                         _created_visualizations[active_visualization].stop();
+                         possible_visualizations[active_visualization].stop();
                      }
                      active_visualization = type;
-                     _created_visualizations[type].start();
+                     possible_visualizations[type].start();
                  })
             })(type);
             action_container.append(element);
