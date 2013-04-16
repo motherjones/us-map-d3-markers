@@ -99,6 +99,27 @@
        return new Point(x/f, y/f);
     };
     
+    var calculate_center_of_state = function(state) {
+        state = state.toLowerCase().replace(/\s+/g, '');
+        if (!state) {return};
+        var state_paths = jQuery('#' + state).attr('d');
+        state_paths = state_paths.replace("M", '')
+            .replace("Z", '').split('L'); 
+        var polygon = [];
+        for (var i = 0; i < state_paths.length; i++) {
+            coordinate = state_paths[i].split(',');
+            var this_lon = parseFloat(coordinate[0]);
+            var this_lat = parseFloat(coordinate[1]);
+            polygon.push({ x : this_lon, y: this_lat });
+        }
+
+        var con = new Contour(polygon);
+        center = con.centroid();
+
+        return [center.x, center.y];
+    }
+
+
 
     //the whole map
     var states = [
@@ -179,11 +200,11 @@
                                 .duration(1000)
                                 .attr('transform', function(d) {
                                     if (d.lon && d.lat ) { 
-                                        //return projection([d.lon, d.lat])[0]; 
                                         var lat_lon = projection([d.lon, d.lat]);
-                                    } else {   
+                                    } else if (d.state) {   
                                         var lat_lon = calculate_center_of_state(d.state)
-                                        //return lat_lon[0]; 
+                                    } else {
+                                        return;
                                     }
                                     d.px = lat_lon[0];
                                     d.py = lat_lon[1];
@@ -615,27 +636,6 @@
 
     */
 
-
-
-    var calculate_center_of_state = function(state) {
-        state = state.toLowerCase().replace(/\s+/g, '');
-        if (!state) {return};
-        var state_paths = jQuery('#' + state).attr('d');
-        state_paths = state_paths.replace("M", '')
-            .replace("Z", '').split('L'); 
-        var polygon = [];
-        for (var i = 0; i < state_paths.length; i++) {
-            coordinate = state_paths[i].split(',');
-            var this_lon = parseFloat(coordinate[0]);
-            var this_lat = parseFloat(coordinate[1]);
-            polygon.push({ x : this_lon, y: this_lat });
-        }
-
-        var con = new Contour(polygon);
-        center = con.centroid();
-
-        return [center.x, center.y];
-    }
 
 
     d3.select("#sort_rev")
