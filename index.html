@@ -263,7 +263,9 @@
     }
 
     function resize_circles(type) {
-        d3.select('g.circle_container circle')
+        console.log(type);
+        console.log(size_types_desired);
+        d3.selectAll('g.circle_container circle')
             .attr('r', function(d) {
                   return size_types_desired[active_size_type].scale(
                      d[active_size_type]
