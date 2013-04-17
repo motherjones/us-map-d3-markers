@@ -241,7 +241,9 @@
         if (!size_types_required > 1) { return; };
         action_container.append(jQuery('<label>Choose Data</label>'));
         for (var type in size_types_required) {
-            var element = jQuery('<button>' + type + '</button>');
+            var label = type.toLowerCase().replace(size_type_signifier, '');
+            label = label.charAt(0).toUpperCase() + label.slice(1);
+            var element = jQuery('<button>' + label + '</button>');
             (function(type) {
                  element.click(function() {
                      active_size_type = type;
