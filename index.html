@@ -29,10 +29,45 @@
     var action_container = jQuery('#sorts');
     var size_types_desired = {};
     var active_size_type = false;
-    var POSSIBLE_VISUALIZATIONS = [
-        'force',
-        'map'
-    ];
+    var possible_visualizations = {
+        'force' : {
+            'start': function() {
+              containers
+                .transition()
+                .duration(1000)
+                  .attr('transform', function(d, i) {
+                    var element = containers[0][i];
+                    return "translate(" + element.x + "," + element.y + ")"
+                    })
+                  .each('end', function() { force.start(); });
+              force.stop();
+            },
+            'stop': function() {
+                force.stop();
+            }
+        },
+        'map' : {
+            'start': function() {
+                containers
+                    .transition()
+                    .duration(1000)
+                    .attr('transform', function(d) {
+                        if (d.lon && d.lat ) { 
+                            var lat_lon = projection([d.lon, d.lat]);
+                        } else if (d.state) {   
+                            var lat_lon = calculate_center_of_state(d.state)
+                        } else {
+                            return;
+                        }
+                        d.px = lat_lon[0];
+                        d.py = lat_lon[1];
+                        return 'translate(' + lat_lon[0] + ',' + lat_lon[1] + ')';
+                });
+            },
+            'stop': function() {
+            }
+        }
+    };
     // this array says which visualizations we want. they must match those in POSSIBLE_VISUALIZATIONS
     var desired_visualizations = [
         'force',
@@ -40,7 +75,6 @@
     ]
 
     var active_visualization;
-    _created_visualizations = {}; //this holds the start and stop functions for the different visualizations
 
     var rows;
     var force;
@@ -99,6 +133,27 @@
        return new Point(x/f, y/f);
     };
     
+    var calculate_center_of_state = function(state) {
+        state = state.toLowerCase().replace(/\s+/g, '');
+        if (!state) {return};
+        var state_paths = jQuery('#' + state).attr('d');
+        state_paths = state_paths.replace("M", '')
+            .replace("Z", '').split('L'); 
+        var polygon = [];
+        for (var i = 0; i < state_paths.length; i++) {
+            coordinate = state_paths[i].split(',');
+            var this_lon = parseFloat(coordinate[0]);
+            var this_lat = parseFloat(coordinate[1]);
+            polygon.push({ x : this_lon, y: this_lat });
+        }
+
+        var con = new Contour(polygon);
+        center = con.centroid();
+
+        return [center.x, center.y];
+    }
+
+
 
     //the whole map
     var states = [
@@ -141,7 +196,7 @@
       create_visualization_buttons(desired_visualizations);
       rows = dataset;
       drawGraph(rows);
-      _created_visualizations[active_visualization].start();
+      possible_visualizations[active_visualization].start();
     }
 
     function create_visualization_buttons(desired_visualizations) {
@@ -150,51 +205,7 @@
             if (!active_visualization) {
                 active_visualization = desired_visualizations[i];
             }
-            switch (desired_visualizations[i]) {
-                case 'force':
-                    create_visualization_button('force');
-                    _created_visualizations.force = {
-                        'start': function() {
-                          containers
-                            .transition()
-                            .duration(1000)
-                              .attr('transform', function(d, i) {
-                                var element = containers[0][i];
-                                return "translate(" + element.x + "," + element.y + ")"
-                                })
-                              .each('end', function() { force.start(); });
-                          force.stop();
-                        },
-                        'stop': function() {
-                            force.stop();
-                        }
-                    };
-                    break;
-                case 'map':
-                    create_visualization_button('map');
-                    _created_visualizations.map = {
-                        'start': function() {
-                            containers
-                                .transition()
-                                .duration(1000)
-                                .attr('transform', function(d) {
-                                    if (d.lon && d.lat ) { 
-                                        //return projection([d.lon, d.lat])[0]; 
-                                        var lat_lon = projection([d.lon, d.lat]);
-                                    } else {   
-                                        var lat_lon = calculate_center_of_state(d.state)
-                                        //return lat_lon[0]; 
-                                    }
-                                    d.px = lat_lon[0];
-                                    d.py = lat_lon[1];
-                                    return 'translate(' + lat_lon[0] + ',' + lat_lon[1] + ')';
-                            });
-                        },
-                        'stop': function() {
-                        }
-                    };
-                    break;
-            }
+            create_visualization_button(desired_visualizations[i]);
         }
     }
 
@@ -203,10 +214,10 @@
             (function(type) {
                  element.click(function() {
                      if (active_visualization) {
-                         _created_visualizations[active_visualization].stop();
+                         possible_visualizations[active_visualization].stop();
                      }
                      active_visualization = type;
-                     _created_visualizations[type].start();
+                     possible_visualizations[type].start();
                  })
             })(type);
             action_container.append(element);
@@ -242,7 +253,9 @@
     }
 
     function resize_circles(type) {
-        d3.select('g.circle_container circle')
+        d3.selectAll('g.circle_container circle')
+            .transition()
+            .duration(1000)
             .attr('r', function(d) {
                   return size_types_desired[active_size_type].scale(
                      d[active_size_type]
@@ -266,9 +279,9 @@
       //setting up a scale for the bubble size
       for (type in size_types_desired) {
           size_types_desired[type].scale = d3.scale.linear()
-              .domain([0, d3.max(rows, function(d){return d.texpenses;})])
+              .domain([0, d3.max(rows, function(d){return d[type];})])
               //defining a minimum bubble size
-              .range([2, 20]);
+              .range([2, 10]);
 
       }
 
@@ -615,27 +628,6 @@
 
     */
 
-
-
-    var calculate_center_of_state = function(state) {
-        state = state.toLowerCase().replace(/\s+/g, '');
-        if (!state) {return};
-        var state_paths = jQuery('#' + state).attr('d');
-        state_paths = state_paths.replace("M", '')
-            .replace("Z", '').split('L'); 
-        var polygon = [];
-        for (var i = 0; i < state_paths.length; i++) {
-            coordinate = state_paths[i].split(',');
-            var this_lon = parseFloat(coordinate[0]);
-            var this_lat = parseFloat(coordinate[1]);
-            polygon.push({ x : this_lon, y: this_lat });
-        }
-
-        var con = new Contour(polygon);
-        center = con.centroid();
-
-        return [center.x, center.y];
-    }
 
 
     d3.select("#sort_rev")
