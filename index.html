@@ -63,8 +63,16 @@
                         d.py = lat_lon[1];
                         return 'translate(' + lat_lon[0] + ',' + lat_lon[1] + ')';
                 });
+                d3.selectAll("path.state")
+                    .transition()
+                    .duration(1000)
+                    .style('opacity', '0.2');
             },
             'stop': function() {
+                d3.selectAll("path.state")
+                    .transition()
+                    .duration(1000)
+                    .style('opacity', '0');
             }
         }
     };
@@ -305,9 +313,10 @@
          .enter()
          .append("path")
          .attr("d", path)
+         .attr('class', 'state')
          .attr('id', function(d) { return d.properties.name.toLowerCase().replace(/\s+/g, ''); })
          //map styles
-         .style("opacity", "0.2");
+         .style("opacity", "0");
 
       //selecting the circles and appending one for each school
       // not var! containers here must be available for click events
