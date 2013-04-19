@@ -205,7 +205,8 @@
       create_visualization_buttons(desired_visualizations);
       rows = dataset;
       drawGraph(rows);
-      possible_visualizations[active_visualization].start();
+      jQuery('#size_button_' + active_size_type).click();
+      jQuery('#visualization_button_' + active_visualization).click();
     }
 
     function create_visualization_buttons(desired_visualizations) {
@@ -219,9 +220,11 @@
     }
 
     function create_visualization_button(type) {
-            var element = jQuery('<button>' + type + '</button>');
+            var element = jQuery('<button class="vis_button" id="visualization_button_' + type + '">' + type + '</button>');
             (function(type) {
                  element.click(function() {
+                     jQuery('.vis_button.selected').removeClass('selected');
+                     jQuery(this).addClass('selected');
                      if (active_visualization) {
                          possible_visualizations[active_visualization].stop();
                      }
@@ -252,9 +255,11 @@
         for (var type in size_types_required) {
             var label = type.toLowerCase().replace(size_type_signifier, '');
             label = label.charAt(0).toUpperCase() + label.slice(1);
-            var element = jQuery('<button>' + label + '</button>');
+            var element = jQuery('<button class="size_button" id="size_button_' + type +'">' + label + '</button>');
             (function(type) {
                  element.click(function() {
+                     jQuery('.size_button.selected').removeClass('selected');
+                     jQuery(this).addClass('selected');
                      active_size_type = type;
                      resize_circles(type);
                  })
