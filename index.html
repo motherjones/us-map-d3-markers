@@ -184,7 +184,8 @@
     window.onload = function() { init() };
 
     //URL to public google spreadsheet
-    var public_spreadsheet_url = 'https://docs.google.com/spreadsheet/pub?key=0Arenb9rAosmbdFp0QWxCZmN3SnQ5SEFLeHRsZWgyT0E&output=html';
+    //var public_spreadsheet_url = 'https://docs.google.com/spreadsheet/pub?key=0Arenb9rAosmbdFp0QWxCZmN3SnQ5SEFLeHRsZWgyT0E&output=html';
+    var public_spreadsheet_url = 'https://docs.google.com/spreadsheet/pub?key=0AiK02J6OppqxdGlKRVh5Rnd4SkNJTjhBSDdWd3NzUnc&output=html';
 
     var size_type_signifier = /^size/;
     function init() {
@@ -246,7 +247,7 @@
     }
 
     function create_size_buttons(size_types_required) {
-        if (!size_types_required > 1) { return; };
+        if (!size_types_required.length > 1) { return; };
         action_container.append(jQuery('<label>Choose Data</label>'));
         for (var type in size_types_required) {
             var label = type.toLowerCase().replace(size_type_signifier, '');
@@ -267,9 +268,13 @@
             .transition()
             .duration(1000)
             .attr('r', function(d) {
+                if ( d[active_size_type] ) {
                   return size_types_desired[active_size_type].scale(
                      d[active_size_type]
                   );
+                 } else {
+                     return 0;
+                 }
             });
     }
 
@@ -288,11 +293,17 @@
 
       //setting up a scale for the bubble size
       for (type in size_types_desired) {
+          var items_with_values = 0;
+          for (var row in rows) {
+            if (rows[row][type]) {
+                items_with_values++;
+            }
+          }
+          var max = Math.floor(w / 2 / items_with_values);
           size_types_desired[type].scale = d3.scale.linear()
-              .domain([0, d3.max(rows, function(d){return d[type];})])
+              .domain([d3.min(rows, function(d){return d[type];}), d3.max(rows, function(d){return d[type];})])
               //defining a minimum bubble size
-              .range([2, 10]);
-
+              .range([5, max]);
       }
 
       //setting up a scale for the x axis ROUNDS ( probably going to need to do this by round, i.e. X value is 1 at big dance, 2 at 32, 3 at sweet 13, etc.)
@@ -332,9 +343,13 @@
      var circles = containers
          .append('circle')
          .attr("r", function(d){
-              return size_types_desired[active_size_type].scale(
-                 d[active_size_type]
-              );
+             if ( d[active_size_type] ) {
+                 return size_types_desired[active_size_type].scale(
+                     d[active_size_type]
+                 );
+             } else {
+                 return 0;
+             }
          })
          .style("fill", function(d){
              return d.color;
@@ -347,7 +362,7 @@
      var texts = containers
          .append("text")
          .text(function(d){
-            return d.text;
+            return d.label;
          })
          .attr("class", function(d){
                  return d.class;
@@ -373,6 +388,30 @@
 
       
       containers.call(force.drag);
+
+
+
+      svg.append('text')
+            .attr('id', 'tooltip')
+            .classed("hidden", true);
+    svg.selectAll("g")
+      .on("mouseover", function(d) {
+              //Get this bar's x/y values, then augment for the tooltip
+              d3.select("#tooltip")
+                  .attr('transform', "translate(" + d3.event.pageX + "," + d3.event.pageY + ")")
+                      .style("left", (d3.event.pageX) + 20 + "px")
+                      .style("top", (d3.event.pageY) - 30 + "px")
+                      .text(d.text);
+              d3.select("#tooltip").classed("hidden", false);
+              })
+
+      .on("mouseout", function() {
+
+        //Hide the tooltip
+            d3.select("#tooltip").classed("hidden", true);
+        });
+    }
+
 
          /*
     drawPredictions(rows);
@@ -918,39 +957,6 @@
          .style("fill", "gray");
     }
 
-    svg.selectAll("circle, text")
-      .on("mouseover", function(d) {
-              //Get this bar's x/y values, then augment for the tooltip
-              d3.select("#tooltip")
-                      .style("left", (d3.event.pageX) + 20 + "px")
-                      .style("top", (d3.event.pageY) - 30 + "px")
-                      .select("#value")
-                      .text(d.school);
-              d3.select('#seed-number')
-                      .text(d.seed);
-              d3.select('#name')
-                      .text(d.school);
-              d3.select('#expenses')
-                      .text("$" + addCommas(d.texpenses));
-              d3.select('#revenue')
-                      .text("$" + addCommas(d.rev));
-              d3.select('#appearance')
-                      .text(d.appearances);
-              d3.select('#finalfours')
-                      .text(d.finalfours);
-              d3.select('#titles')
-                      .text(d.titles);
-              // for rounding values to million
-              // .text("$" + parseInt(d.gross/1000000) + " million");
-              d3.select("#tooltip").classed("hidden", false);
-              })
-
-      .on("mouseout", function() {
-
-        //Hide the tooltip
-        d3.select("#tooltip").classed("hidden", true);
-        });
-    }
   </script>
 
 
