@@ -1,0 +1,137 @@
+body {
+	font-family:'Trebuchet MS',Helvetica,Arial,sans-serif;
+}
+
+#sorts label {
+	font-size: .7em;
+	font-weight: bold;
+	letter-spacing: 1px;
+	line-height: normal;
+	text-transform: uppercase;
+	padding: 8px;
+}
+
+#sorts button.size_button,
+#sorts button.vis_button {
+	background-color: #eee;
+	border: 4px solid #ccc;
+	color: #ccc;
+	font-weight: bold;
+	letter-spacing: 1px;
+	line-height: normal;
+	margin-bottom: 1em;
+	text-transform: uppercase;
+	padding: 4px;
+}
+
+#sorts button.size_button:hover {
+	cursor: pointer;
+	background-color: #EF4023;
+	border: 4px solid #CD371E;
+	color: #fff;
+	-moz-transition: all 0.15s;
+  -o-transition: all 0.15s;
+  -webkit-transition: all 0.15s;
+  transition: all 0.15s;
+}
+
+#sorts .size_button.selected {
+	background-color: #EF4023;
+	border: 4px solid #CD371E;
+	color: #fff;
+}
+
+#sorts button#size_button_sizefertilizerplants{
+	background-color: #eee;
+	border: 4px solid #ccc;
+	color: #ccc;
+}
+
+#sorts button#size_button_sizefertilizerplants:hover {
+	background-color: #555;
+	border: 4px solid #000;
+	color: #fff;
+	-moz-transition: all 0.15s;
+  -o-transition: all 0.15s;
+  -webkit-transition: all 0.15s;
+  transition: all 0.15s;
+}
+
+#sorts button#size_button_sizefertilizerplants.selected {
+	background-color: #555;
+	border: 4px solid #000;
+	color: #fff;
+}
+
+#sorts button.vis_button:hover {
+	cursor: pointer;
+	background-color: #0168A2;
+	border: 4px solid #304481;
+	color: #fff;
+	-moz-transition: all 0.15s;
+  -o-transition: all 0.15s;
+  -webkit-transition: all 0.15s;
+  transition: all 0.15s;
+}
+
+#sorts button.vis_button.selected {
+	background-color: #0168A2;
+	border: 4px solid #304481;
+	color: #fff;
+}
+
+#container path {
+	fill-opacity: 0;
+	stroke: gray;
+	stroke-width: 1;	
+}
+
+text#tooltip {
+	font-size: .7em;
+	font-weight: bold;
+	letter-spacing: 1px;
+	line-height: normal;
+	margin-bottom: 1em;
+	text-transform: uppercase;
+	padding: 8px;
+
+}
+
+text#tooltip.hidden {
+	display:none;
+}
+
+circle {
+  -moz-transition: all 0.15s;
+  -o-transition: all 0.15s;
+  -webkit-transition: all 0.15s;
+  transition: all 0.15s;
+}
+
+circle:hover {
+  fill: black !important;
+  fill-opacity: .8 !important;
+  stroke-width: 1;
+  stroke: white;
+}
+
+#tooltip {
+  position: absolute;
+  width: 190px;
+  height: auto;
+  padding: 10px;
+  background-color: white;
+  -webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+#tooltip.hidden {
+  display: none;
+  -moz-transition: all 0.15s;
+  -o-transition: all 0.15s;
+  -webkit-transition: all 0.15s;
+  transition: all 0.15s;
+}
+
