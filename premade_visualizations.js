@@ -24,18 +24,34 @@ PremadeVis.basic.prototype.start = function() {
 PremadeVis.basic.prototype.stop = function() {
     return;
 }
-PremadeVis.basic.prototype.set_xy = function(nodes) {
-    var self = this
+PremadeVis.basic.prototype.set_xy = function(nodes, get_function) {
+    var self = this;
+    self.get_function = get_function
+        ? get_function
+        : this.get_xy;
+        
     return nodes
         .attr('x', function(d, i) {
-            self.get_xy(d, i)[0];
+            self.get_function(d, i)[0];
         })
         .attr('y', function(d, i) {
-            self.get_xy(d, i)[1];
+            self.get_function(d, i)[1];
         })
 }
-PremadeVis.basic.prototype.get_xy = function(node) {
-    return [node.x, node.y];
+PremadeVis.basic.prototype.get_xy = function(node, i) {
+    if (node.x && node.y) {
+        return [node.x, node.y];
+    } else {
+        return this.get_transform_xy(node, i);
+    }
+}
+PremadeVis.basic.prototype.get_transform_xy = function(node, i) {
+    var element = this.nodes[0][i];
+    var transform_string = jQuery(element).attr('transform');
+    var just_the_numbers = transform_string
+        .replace(/translate\(/, '')
+        .replace(/\)/, '');
+    return just_the_numbers.split(',');
 }
 PremadeVis.basic.prototype.determine_setter = function() {
     if (this.nodes[0][0].tagName === 'g') {
@@ -44,11 +60,14 @@ PremadeVis.basic.prototype.determine_setter = function() {
     }
 }
 
-PremadeVis.basic.prototype.set_transform_xy = function(nodes) {
+PremadeVis.basic.prototype.set_transform_xy = function(nodes, get_function) {
     var self = this;
+    self.get_function = get_function
+        ? get_function
+        : this.get_xy;
     return nodes
         .attr('transform', function(d, i) {
-            xy = self.get_xy(d, i)
+            xy = self.get_function(d, i)
             return 'translate(' + xy[0] + ',' + xy[1] + ')';
         })
 }
@@ -132,16 +151,20 @@ PremadeVis.force.prototype.start = function() {
         this.create_force_vis()
     }
 
-    if (this.nodes[0][0].x) {
-        this.set_xy(
-            this.nodes
-                .transition()
-                .duration(this.transition_duration),
-            this.get_xy
-        ).each('end', function() { self.force_vis.start(); });
-    } else {
-        this.force_vis.start();
+    if (!this.nodes[0][0].x) {
+        var force_nodes = this.force_vis.nodes(); 
+        for (var i in force_nodes) {
+            if (i === 'parentNode') {
+                continue;
+            }
+            var node = force_nodes[i];
+            var xy = this.get_transform_xy(node, i);
+            node.x = parseFloat(xy[0]);
+            node.y = parseFloat(xy[1]);
+        }
     }
+
+    this.force_vis.start();
 
     if (!this.force_drag) {
         this.create_force_drag();
@@ -164,13 +187,14 @@ PremadeVis.force.prototype.create_force_drag = function() {
         jQuery(this).attr('transform', "translate(" + d3.event.x + "," + d3.event.y + ")");
     });
     this.force_drag.on('dragend', function() {
+        self.force_vis.stop();
         self.force_vis.start();
     })
 }
 
 PremadeVis.force.prototype.create_force_vis = function() {
     var self = this;
-    var tick = function() {
+    this.force_tick = function() {
         self.nodes
             .attr('transform', function(d, i) {
                 var element = self.nodes[0][i];
@@ -183,10 +207,12 @@ PremadeVis.force.prototype.create_force_vis = function() {
         .gravity(this.force_gravity) //.08
         .charge(this.force_charge) // -50
         .size([this.w - this.padding * 2, this.h - this.padding * 2])
-        .on("tick", tick)
+        .on("tick", this.force_tick)
 }
 
 PremadeVis.force.prototype.get_xy = function(node, i) {
     var element = this.nodes[0][i];
-    return [element.x, element.y]
+    if (element.x && element.y) {
+        return [element.x, element.y]
+    }
 }
