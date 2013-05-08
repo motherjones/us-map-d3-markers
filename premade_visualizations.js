@@ -87,12 +87,12 @@ PremadeVis.map = function(nodes, container, options) {
         .data(this.map_features[0].features)
         //enter links the data up with the "path"
         .enter()
-        .append("path")
+        .insert("path", ':first-child')
         .attr("d", this.map_path)
         .attr('class', 'state')
         .attr('id', function(d) { return d.properties.name.toLowerCase().replace(/\s+/g, ''); })
         //map styles
-        .style("opacity", "0");
+        .style("opacity", "0")
 
     return this;
 }
