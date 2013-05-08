@@ -153,7 +153,14 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
             } else {
                 return 0;
             }
-        });
+        })
+        .style('fill', function(d) {
+            if (self.active_size_type && d[self.active_size_type.replace(self.size_type_signifier , 'color')]) {
+                return d[self.active_size_type.replace(self.size_type_signifier , 'color')];
+            } else {
+                return d.color;
+            }
+        })
 }
 
 //defining svg, appending svg element to container
