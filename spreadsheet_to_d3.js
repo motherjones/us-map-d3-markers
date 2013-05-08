@@ -27,6 +27,8 @@ var SpreadsheetToD3 = function(dataset, options) {
     }
 
     this.action_container = jQuery('#' + this.action_container_id);
+    this.vis_container = jQuery('<div id="vis_container"><label>Choose Visualization</label></div>');
+    this.size_container = jQuery('<div id="size_container"><label>Choose Data</label></div>');
     this.rows = dataset;
     this.active_size_type = false;
     this.active_visualization = false;
@@ -51,7 +53,7 @@ var SpreadsheetToD3 = function(dataset, options) {
 
 SpreadsheetToD3.prototype.create_visualization_buttons = function() {
     if (this.desired_visualizations.length > 1) {
-        this.action_container.append(jQuery('<label>Choose Visualization</label>'));
+        this.action_container.append(this.vis_container);
     }
     for (var i = 0; i < this.desired_visualizations.length; i++) {
         this.create_visualization_button(this.desired_visualizations[i]);
@@ -74,7 +76,7 @@ SpreadsheetToD3.prototype.create_visualization_button = function(type) {
             self.possible_visualizations[type].start();
         })
     })(type);
-    this.action_container.append(element);
+    this.vis_container.append(element);
     if (this.desired_visualizations.length < 2) {
         element.hide();
     }
@@ -112,7 +114,7 @@ SpreadsheetToD3.prototype.create_datastructure = function() {
 SpreadsheetToD3.prototype.create_size_buttons = function() {
     var self = this;
     if (Object.keys(this.size_types_desired).length > 1) {
-        this.action_container.append(jQuery('<label>Choose Data</label>'));
+        this.action_container.append(this.size_container);
     }
     for (var type in this.size_types_desired) {
         var label = type.toLowerCase().replace(this.size_type_signifier, '');
@@ -131,7 +133,7 @@ SpreadsheetToD3.prototype.create_size_buttons = function() {
                  visObj.resize_circles(type);
              })
         })(type, this);
-        this.action_container.append(element);
+        this.size_container.append(element);
     }
     // this is taking advantage of the fact that the for loop leaves debris
     // consider doing this in a less clever way
