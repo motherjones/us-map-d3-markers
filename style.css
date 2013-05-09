@@ -1,5 +1,20 @@
 body {
 	font-family:'Trebuchet MS',Helvetica,Arial,sans-serif;
+	width: 630px;
+	margin: 0 auto;
+}
+
+#bubble-mapper {
+	
+	margin-top: 3em;
+	vertical-align: middle;
+	
+}
+
+#hed {
+	
+	line-height: .5;
+	
 }
 
 #sorts label {
@@ -8,7 +23,7 @@ body {
 	letter-spacing: 1px;
 	line-height: normal;
 	text-transform: uppercase;
-	padding: 8px;
+	
 }
 
 #sorts button.size_button,
@@ -135,3 +150,9 @@ circle:hover {
   transition: all 0.15s;
 }
 
+#source {
+	
+	text-align: right;
+	color: #adadad;
+	font-size: .8em;
+}
