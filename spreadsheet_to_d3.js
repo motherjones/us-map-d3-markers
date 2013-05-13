@@ -11,6 +11,7 @@ var SpreadsheetToD3 = function(dataset, options) {
     this.w = 632;
     this.h = 400;
     this.padding = 20;
+    this.max_list_items = 20;
     this.size_type_signifier = /^size/;
     this.action_container_id = 'sorts';
     this.indicates_a_space_in_a_label = '-';
@@ -18,6 +19,7 @@ var SpreadsheetToD3 = function(dataset, options) {
     // this array says which visualizations we want. they must match those in POSSIBLE_VISUALIZATIONS
     this.desired_visualizations = [
         'map',
+        'list',
         'force'
     ]
 
@@ -146,17 +148,6 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
     var self = this;
     var calls = d3.selectAll('g.circle_container circle')[0].length;
     var completed = 0;
-    d3.selectAll('g').style('display', 'block');
-    /*
-    d3.selectAll('text')
-        .transition()
-        .duration(1000)
-        .style('opacity', function(d) {
-            return d[self.active_size_type]
-                ? 1
-                : 0;
-        })
-        */
     d3.selectAll('g.circle_container circle')
         .transition()
         .duration(1000)
@@ -177,9 +168,6 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
             }
         })
         .each('end', function() {
-            if (!this.r.baseVal.value) {
-                jQuery(this.parentNode).css('display', 'none');
-            }
             completed++;
             if (calls === completed && self.active_visualization) {
                 self.possible_visualizations[self.active_visualization].stop();
@@ -253,6 +241,7 @@ SpreadsheetToD3.prototype.drawGraph = function(){
             return d.class;
         })
         .style('text-anchor', 'middle')
+        .style('opacity', 0)
         .style('baseline-shift', '10px');
 
     this.svg.append('text')

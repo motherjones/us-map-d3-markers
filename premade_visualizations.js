@@ -10,7 +10,7 @@ PremadeVis.basic.prototype.init = function(nodes, container, options) {
     this.nodes = nodes;
     this.container = container;
     this.transition_duration = 1000;
-    this.show_opacity = '0.2';
+    this.show_opacity = '0.4';
     this.hide_opacity = '0';
     for (var option in options) {
         this[option] = options[option]
@@ -108,6 +108,13 @@ PremadeVis.list.prototype.start = function() {
         self.stop()
         self.start()
     });
+
+    d3.selectAll('.circle_container text')
+        .transition()
+        .duration(this.transition_duration)
+        .style('opacity', this.show_opacity)
+
+
     this.canvas_dimensions = [
         Math.min($(window).width(), this.w), 
         Math.min($(window).height(), this.h)
@@ -153,13 +160,21 @@ PremadeVis.list.prototype.get_xy = function(d, i) {
     var x = this.x_pos_list[( pos % this.num_columns )] + (this.node_dimensions[0] / 2);
     var y = (Math.floor( pos / this.num_columns ))
         * ( this.node_dimensions[1] + options.padding )
-        + (this.node_dimensions[1]);
+        + (this.node_dimensions[1] / 2)
+        + options.padding;
 
+    if (i > this.max_list_items) {
+        y = y + $(window).height();
+    }
     return [x, y];
 }
 
 PremadeVis.list.prototype.stop = function() {
     jQuery(document).unbind('resize');
+    d3.selectAll('.circle_container text')
+        .transition()
+        .duration(this.transition_duration)
+        .style('opacity', this.hide_opacity)
 }
 
 
