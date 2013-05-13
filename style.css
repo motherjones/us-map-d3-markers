@@ -1,13 +1,9 @@
 body {
 	font-family:'Trebuchet MS',Helvetica,Arial,sans-serif;
-	width: 630px;
-	margin: 0 auto;
+
 }
 
 #bubble-mapper {
-	
-	margin-top: 5em;
-	vertical-align: middle;
 	
 }
 
@@ -105,21 +101,6 @@ g.circle_container text {
     font-size: .7em;
 }
 
-text#tooltip {
-	font-size: .7em;
-	font-weight: bold;
-	letter-spacing: 1px;
-	line-height: normal;
-	margin-bottom: 1em;
-	text-transform: uppercase;
-	padding: 8px;
-
-}
-
-text#tooltip.hidden {
-	display:none;
-}
-
 circle {
   -moz-transition: all 0.15s;
   -o-transition: all 0.15s;
@@ -133,6 +114,22 @@ circle:hover {
   stroke-width: 1;
   stroke: white;
 }
+
+text#tooltip {
+	
+	font-size: .7em;
+	font-weight: bold;
+	letter-spacing: 1px;
+	line-height: normal;
+	margin-bottom: 1em;
+	text-transform: uppercase;
+	padding: 8px;
+}
+
+text#tooltip.hidden {
+	display:none;
+}
+
 
 #tooltip {
   position: absolute;
@@ -156,7 +153,7 @@ circle:hover {
 
 #source {
 	
-	text-align: right;
+	font-style: italic;
 	color: #adadad;
 	font-size: .8em;
 }
