@@ -146,6 +146,17 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
     var self = this;
     var calls = d3.selectAll('g.circle_container circle')[0].length;
     var completed = 0;
+    d3.selectAll('g').style('display', 'block');
+    /*
+    d3.selectAll('text')
+        .transition()
+        .duration(1000)
+        .style('opacity', function(d) {
+            return d[self.active_size_type]
+                ? 1
+                : 0;
+        })
+        */
     d3.selectAll('g.circle_container circle')
         .transition()
         .duration(1000)
@@ -166,6 +177,9 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
             }
         })
         .each('end', function() {
+            if (!this.r.baseVal.value) {
+                jQuery(this.parentNode).css('display', 'none');
+            }
             completed++;
             if (calls === completed && self.active_visualization) {
                 self.possible_visualizations[self.active_visualization].stop();
@@ -235,9 +249,11 @@ SpreadsheetToD3.prototype.drawGraph = function(){
         .text(function(d){
             return d.label;
         })
-    .attr("class", function(d){
-        return d.class;
-    });
+        .attr("class", function(d){
+            return d.class;
+        })
+        .style('text-anchor', 'middle')
+        .style('baseline-shift', '10px');
 
     this.svg.append('text')
         .attr('id', 'tooltip')

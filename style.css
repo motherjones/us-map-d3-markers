@@ -101,6 +101,10 @@ body {
 	stroke-width: 1;	
 }
 
+g.circle_container text {
+    font-size: .7em;
+}
+
 text#tooltip {
 	font-size: .7em;
 	font-weight: bold;

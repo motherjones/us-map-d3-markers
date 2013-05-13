@@ -137,7 +137,7 @@ PremadeVis.list.prototype.start = function() {
     this.nodes.sort(function(a, b) {
                     return b[self.app.active_size_type]
                          - a[self.app.active_size_type];
-    })
+    }).order();
 
 
     this.set_xy(
@@ -153,8 +153,8 @@ PremadeVis.list.prototype.get_xy = function(d, i) {
     var x = this.x_pos_list[( pos % this.num_columns )] + (this.node_dimensions[0] / 2);
     var y = (Math.floor( pos / this.num_columns ))
         * ( this.node_dimensions[1] + options.padding )
-        + (this.node_dimensions[0] / 2);
-        
+        + (this.node_dimensions[1]);
+
     return [x, y];
 }
 
