@@ -246,9 +246,11 @@ SpreadsheetToD3.prototype.drawGraph = function(){
         .on("mouseover", function(d) {
             //Get this bar's x/y values, then augment for the tooltip
             d3.select("#tooltip")
-            .attr('transform', "translate(" + d3.event.pageX + "," + d3.event.pageY + ")")
-            .style("left", (d3.event.pageX) + 20 + "px")
-            .style("top", (d3.event.pageY) - 30 + "px")
+            .attr('transform', function() {
+                return "translate(" + (d3.event.pageX - self.svg[0][0].offsetLeft)
+                + "," + (d3.event.pageY - self.svg[0][0].offsetTop)
+                + ")";
+            })
             .text(d.text);
         d3.select("#tooltip").classed("hidden", false);
         })
