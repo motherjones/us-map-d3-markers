@@ -166,6 +166,7 @@ PremadeVis.list.prototype.stop = function() {
 PremadeVis.map.prototype = new PremadeVis.basic;
 
 PremadeVis.map.prototype.start = function() {
+    var self = this;
     this.set_xy(
         this.nodes
             .transition()
@@ -177,7 +178,10 @@ PremadeVis.map.prototype.start = function() {
         .style('display', 'block')
         .transition()
         .duration(this.transition_duration)
-        .style('opacity', this.show_opacity);
+        .style('opacity', this.show_opacity)
+        .each('end', function(d) {
+            self.map_elements.style('display', 'block');
+        });
 }
 
 PremadeVis.map.prototype.get_xy = function(node) {

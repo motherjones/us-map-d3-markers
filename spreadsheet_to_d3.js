@@ -168,7 +168,6 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
         .each('end', function() {
             completed++;
             if (calls === completed && self.active_visualization) {
-                console.log('should only be once');
                 self.possible_visualizations[self.active_visualization].stop();
                 self.possible_visualizations[self.active_visualization].start();
             }
