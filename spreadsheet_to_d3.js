@@ -144,6 +144,8 @@ SpreadsheetToD3.prototype.create_size_buttons = function() {
 
 SpreadsheetToD3.prototype.resize_circles = function(type) {
     var self = this;
+    var calls = d3.selectAll('g.circle_container circle')[0].length;
+    var completed = 0;
     d3.selectAll('g.circle_container circle')
         .transition()
         .duration(1000)
@@ -163,6 +165,14 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
                 return d.color;
             }
         })
+        .each('end', function() {
+            completed++;
+            if (calls === completed && self.active_visualization) {
+                console.log('should only be once');
+                self.possible_visualizations[self.active_visualization].stop();
+                self.possible_visualizations[self.active_visualization].start();
+            }
+        });
 }
 
 //defining svg, appending svg element to container
@@ -259,7 +269,7 @@ SpreadsheetToD3.prototype.set_possible_visualizations = function() {
             this.first_vis = vis; 
         }
 
-        var new_vis = new PremadeVis[vis](this.nodes, this.svg, this.options);
+        var new_vis = new PremadeVis[vis](this.nodes, this.svg, this.options, this);
         this.possible_visualizations[vis] = new_vis;
     }
 };
