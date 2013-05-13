@@ -144,6 +144,8 @@ SpreadsheetToD3.prototype.create_size_buttons = function() {
 
 SpreadsheetToD3.prototype.resize_circles = function(type) {
     var self = this;
+    var calls = d3.selectAll('g.circle_container circle')[0].length;
+    var completed = 0;
     d3.selectAll('g.circle_container circle')
         .transition()
         .duration(1000)
@@ -163,6 +165,13 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
                 return d.color;
             }
         })
+        .each('end', function() {
+            completed++;
+            if (calls === completed && self.active_visualization) {
+                self.possible_visualizations[self.active_visualization].stop();
+                self.possible_visualizations[self.active_visualization].start();
+            }
+        });
 }
 
 //defining svg, appending svg element to container
@@ -237,9 +246,11 @@ SpreadsheetToD3.prototype.drawGraph = function(){
         .on("mouseover", function(d) {
             //Get this bar's x/y values, then augment for the tooltip
             d3.select("#tooltip")
-            .attr('transform', "translate(" + d3.event.pageX + "," + d3.event.pageY + ")")
-            .style("left", (d3.event.pageX) + 20 + "px")
-            .style("top", (d3.event.pageY) - 30 + "px")
+            .attr('transform', function() {
+                return "translate(" + (d3.event.pageX - self.svg[0][0].offsetLeft)
+                + "," + (d3.event.pageY - self.svg[0][0].offsetTop)
+                + ")";
+            })
             .text(d.text);
         d3.select("#tooltip").classed("hidden", false);
         })
@@ -259,7 +270,7 @@ SpreadsheetToD3.prototype.set_possible_visualizations = function() {
             this.first_vis = vis; 
         }
 
-        var new_vis = new PremadeVis[vis](this.nodes, this.svg, this.options);
+        var new_vis = new PremadeVis[vis](this.nodes, this.svg, this.options, this);
         this.possible_visualizations[vis] = new_vis;
     }
 };

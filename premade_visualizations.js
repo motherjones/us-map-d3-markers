@@ -96,10 +96,77 @@ PremadeVis.map = function(nodes, container, options) {
 
     return this;
 }
+PremadeVis.list = function(nodes, container, options, app) {
+    this.init(nodes, container, options);
+    this.app = app;
+}
+PremadeVis.list.prototype = new PremadeVis.basic;
+
+PremadeVis.list.prototype.start = function() {
+    var self = this;
+    jQuery(document).resize(function() {
+        self.stop()
+        self.start()
+    });
+    this.canvas_dimensions = [
+        Math.min($(window).width(), this.w), 
+        Math.min($(window).height(), this.h)
+    ];
+
+    var svg_heights = [];
+    var svg_widths = [];
+    this.container.selectAll('g').each(function() {
+        svg_heights.push(this.getBBox().height);
+        svg_widths.push(this.getBBox().width);
+    })
+
+    this.node_dimensions = [
+        d3.max(svg_widths),
+        d3.max(svg_heights),
+    ];
+
+    this.num_columns = Math.floor(
+        this.canvas_dimensions[0] / (this.node_dimensions[0] + options.padding)
+    );
+
+    this.x_pos_list = [];
+    for (var i = 0; i < this.num_columns; i++) {
+        this.x_pos_list.push( i * (this.node_dimensions[0] + options.padding) )
+    }
+
+    this.nodes.sort(function(a, b) {
+                    return b[self.app.active_size_type]
+                         - a[self.app.active_size_type];
+    })
+
+
+    this.set_xy(
+        this.nodes
+            .transition()
+            .duration(this.transition_duration),
+        this.get_xy
+    );
+}
+
+PremadeVis.list.prototype.get_xy = function(d, i) {
+    var pos = i;
+    var x = this.x_pos_list[( pos % this.num_columns )] + (this.node_dimensions[0] / 2);
+    var y = (Math.floor( pos / this.num_columns ))
+        * ( this.node_dimensions[1] + options.padding )
+        + (this.node_dimensions[0] / 2);
+        
+    return [x, y];
+}
+
+PremadeVis.list.prototype.stop = function() {
+    jQuery(document).unbind('resize');
+}
+
 
 PremadeVis.map.prototype = new PremadeVis.basic;
 
 PremadeVis.map.prototype.start = function() {
+    var self = this;
     this.set_xy(
         this.nodes
             .transition()
@@ -111,7 +178,10 @@ PremadeVis.map.prototype.start = function() {
         .style('display', 'block')
         .transition()
         .duration(this.transition_duration)
-        .style('opacity', this.show_opacity);
+        .style('opacity', this.show_opacity)
+        .each('end', function(d) {
+            self.map_elements.style('display', 'block');
+        });
 }
 
 PremadeVis.map.prototype.get_xy = function(node) {
