@@ -27,8 +27,8 @@ var SpreadsheetToD3 = function(dataset, options) {
     }
 
     this.action_container = jQuery('#' + this.action_container_id);
-    this.vis_container = jQuery('<div id="vis_container"><label>Choose Visualization</label></div>');
-    this.size_container = jQuery('<div id="size_container"><label>Choose Data</label></div>');
+    this.vis_container = jQuery('<div id="vis_container"><label>Choose Visualization:</label></div>');
+    this.size_container = jQuery('<div id="size_container"><label>Choose Data:</label></div>');
     this.rows = dataset;
     this.active_size_type = false;
     this.active_visualization = false;
