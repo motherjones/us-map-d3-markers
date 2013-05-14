@@ -265,10 +265,15 @@ SpreadsheetToD3.prototype.drawGraph = function(){
                 if (err) {
                     console.log(err);
                 }
+                /*
                 tooltip.animate({
                     'left': d3.event.offsetX,
                     'top': d3.event.offsetY
                 }, 200);
+                */
+                tooltip.css('left', d3.event.offsetX);
+                tooltip.css('top', d3.event.offsetY);
+
                 jQuery(tooltip).html(out);
                 tooltip.removeClass('hidden');
                 
