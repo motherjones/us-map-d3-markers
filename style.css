@@ -91,6 +91,10 @@ body {
 	color: #fff;
 }
 
+#container {
+    position: relative;
+}
+
 #container path {
 	fill-opacity: 0;
 	stroke: gray;
@@ -125,6 +129,8 @@ text#tooltip {
 	margin-bottom: 1em;
 	text-transform: uppercase;
 	padding: 8px;
+
+    background-color: red;
 }
 
 text#tooltip.hidden {

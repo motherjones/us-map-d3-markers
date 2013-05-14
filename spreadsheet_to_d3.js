@@ -27,6 +27,10 @@ var SpreadsheetToD3 = function(dataset, options) {
         this[key] = options[key];
     }
 
+    var tooltip_template = this.tooltip_template ? this.tooltip_template : '{text}';
+    var compiled_tooltip = dust.compile(tooltip_template, 'tooltip');
+    dust.loadSource(compiled_tooltip);
+
     this.action_container = jQuery('#' + this.action_container_id);
     this.vis_container = jQuery('<div id="vis_container"><label>Choose Visualization: </label></div>');
     this.size_container = jQuery('<div id="size_container"><label>Choose Data: </label></div>');
@@ -251,26 +255,36 @@ SpreadsheetToD3.prototype.drawGraph = function(){
         .style('opacity', 0)
         .style('baseline-shift', '10px');
 
-    this.svg.append('text')
-        .attr('id', 'tooltip')
-        .classed("hidden", true);
-    this.svg.selectAll("g")
+    this.svg.selectAll("g.circle_container")
         .on("mouseover", function(d) {
-            //Get this bar's x/y values, then augment for the tooltip
-            d3.select("#tooltip")
-            .attr('transform', function() {
-                return "translate(" + (d3.event.pageX - self.svg[0][0].offsetLeft)
-                + "," + (d3.event.pageY - self.svg[0][0].offsetTop)
-                + ")";
-            })
-            .text(d.text);
-        d3.select("#tooltip").classed("hidden", false);
+            dust.render('tooltip', d, function(err, out) {
+                if (err) {
+                    console.log(err);
+                }
+                //Get this bar's x/y values, then augment for the tooltip
+                /*
+                var tooltip = jQuery('<foreignObject id="tooltip" requiredExtensions="http://www.w3.org/1999/xhtml"  '
+                    + 'height="100" width="100" transform="translate(' + (d3.event.pageX - self.svg[0][0].offsetLeft)
+                        + ',' + (d3.event.pageY - self.svg[0][0].offsetTop)
+                        + ')" x="' +(d3.event.pageX - self.svg[0][0].offsetLeft) + '" y="' +(d3.event.pageY - self.svg[0][0].offsetTop) + '"> '
+                    + '</foreignObject>');
+                var body = document.createElement("body") 
+                body.setAttribute('xmls', "http://www.w3.org/1999/xhtml");
+                jQuery(body).html(out);
+                    */
+                var tooltip = jQuery('<div id="tooltip"></div>');
+                tooltip.css('top', d3.event.offsetY);
+                tooltip.css('left', d3.event.offsetX);
+                jQuery(tooltip).append(out);
+                
+                jQuery('#container').append(tooltip);
+            });
         })
 
     .on("mouseout", function() {
 
         //Hide the tooltip
-        d3.select("#tooltip").classed("hidden", true);
+        jQuery("#tooltip").remove();
     });
 }
 

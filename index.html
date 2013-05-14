@@ -27,6 +27,7 @@
   <script type="text/javascript" src="premade_visualizations.js"></script>
   <script type="text/javascript" src="spreadsheet_to_d3.js"></script>
   <script type="text/javascript" src="center_of_path_element.js"></script>
+  <script type="text/javascript" src="dust-full-1.2.3.min.js"></script>
 
   <script type="text/javascript">
     //URL to public google spreadsheet
@@ -53,15 +54,12 @@
             'list',
         ],
 
-        //Want a tool tip? Better fill this out.
-        // each line has two parts. 
-        //The first part is the column that you want to have in the tooltip
-        //The second part is what kind of data it is.
-        // I accept the following types of data
-        //  'label' for short bits of text or numbers and you'd like the column name in front 
-        //  'snip' for short bits of text or numbers but you don't want the column name in front
-        //  'paragraph' for long bits of text
-        // oh fuck what to do here
+        tooltip_template: '{state} \
+            Solar: {solar} \
+            Hydroelectric: {hydro} \
+            Geothermal: {geo} \
+            Total: {total} \
+        ',
 
 
         // don't fuck with me unless you want a map that isn't the contental US
