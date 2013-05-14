@@ -16,7 +16,6 @@ var SpreadsheetToD3 = function(dataset, options) {
     this.action_container_id = 'sorts';
     this.indicates_a_space_in_a_label = '-';
     this.first_vis = false;
-    // this array says which visualizations we want. they must match those in POSSIBLE_VISUALIZATIONS
     this.desired_visualizations = [
         'map',
         'list',
@@ -97,16 +96,17 @@ SpreadsheetToD3.prototype.create_datastructure = function() {
 
             var items_with_values = 0;
             for (var row in this.rows) {
-                if (this.rows[row][key]) {
+                if (this.rows[row][key] && this.rows[row][key] > 0) {
                     items_with_values++;
                 }
             }
-            var max = Math.floor(this.w / 2 / items_with_values);
+            //var max = Math.floor(this.w / items_with_values);
+            var max = Math.floor(3.5 * this.w / this.rows.length);
             this.size_types_desired[key].scale = d3.scale.linear()
-                .domain([d3.min(this.rows, function(d){return d[key];}), 
-                        d3.max(this.rows, function(d){return d[key];})])
+                .domain([d3.min(this.rows, function(d){return parseInt(d[key]);}), 
+                        d3.max(this.rows, function(d){return parseInt(d[key]);})])
                 //defining a minimum bubble size
-                .range([5, max]);
+                .range([2, max]);
 
             }
     }
@@ -152,7 +152,7 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
         .transition()
         .duration(1000)
         .attr('r', function(d) {
-            if ( d[self.active_size_type] ) {
+            if ( d[self.active_size_type] && d[self.active_size_type] > 0 ) {
                 return self.size_types_desired[self.active_size_type].scale(
                     d[self.active_size_type]
                     );

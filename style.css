@@ -106,6 +106,7 @@ circle {
   -o-transition: all 0.15s;
   -webkit-transition: all 0.15s;
   transition: all 0.15s;
+  fill: #72C050;
 }
 
 circle:hover {
