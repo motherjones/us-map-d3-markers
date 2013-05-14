@@ -255,36 +255,30 @@ SpreadsheetToD3.prototype.drawGraph = function(){
         .style('opacity', 0)
         .style('baseline-shift', '10px');
 
+
+    var tooltip = jQuery('<div id="tooltip"></div>');
+    jQuery('#container').append(tooltip);
+
     this.svg.selectAll("g.circle_container")
         .on("mouseover", function(d) {
             dust.render('tooltip', d, function(err, out) {
                 if (err) {
                     console.log(err);
                 }
-                //Get this bar's x/y values, then augment for the tooltip
-                /*
-                var tooltip = jQuery('<foreignObject id="tooltip" requiredExtensions="http://www.w3.org/1999/xhtml"  '
-                    + 'height="100" width="100" transform="translate(' + (d3.event.pageX - self.svg[0][0].offsetLeft)
-                        + ',' + (d3.event.pageY - self.svg[0][0].offsetTop)
-                        + ')" x="' +(d3.event.pageX - self.svg[0][0].offsetLeft) + '" y="' +(d3.event.pageY - self.svg[0][0].offsetTop) + '"> '
-                    + '</foreignObject>');
-                var body = document.createElement("body") 
-                body.setAttribute('xmls', "http://www.w3.org/1999/xhtml");
-                jQuery(body).html(out);
-                    */
-                var tooltip = jQuery('<div id="tooltip"></div>');
-                tooltip.css('top', d3.event.offsetY);
-                tooltip.css('left', d3.event.offsetX);
-                jQuery(tooltip).append(out);
+                tooltip.animate({
+                    'left': d3.event.offsetX,
+                    'top': d3.event.offsetY
+                }, 200);
+                jQuery(tooltip).html(out);
+                tooltip.removeClass('hidden');
                 
-                jQuery('#container').append(tooltip);
             });
         })
 
     .on("mouseout", function() {
 
         //Hide the tooltip
-        jQuery("#tooltip").remove();
+        tooltip.addClass('hidden');
     });
 }
 
