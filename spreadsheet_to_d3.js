@@ -110,7 +110,7 @@ SpreadsheetToD3.prototype.create_datastructure = function() {
                 .domain([d3.min(this.rows, function(d){return parseInt(d[key]);}), 
                         d3.max(this.rows, function(d){return parseInt(d[key]);})])
                 //defining a minimum bubble size
-                .range([2, max]);
+                .range([4, max]);
 
             }
     }
