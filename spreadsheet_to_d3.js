@@ -146,6 +146,10 @@ SpreadsheetToD3.prototype.create_size_buttons = function() {
 
 SpreadsheetToD3.prototype.resize_circles = function(type) {
     var self = this;
+    this.nodes.sort(function(a, b) {
+                    return b[type]
+                         - a[type];
+    }).order();
     var calls = d3.selectAll('g.circle_container circle')[0].length;
     var completed = 0;
     d3.selectAll('g.circle_container circle')
@@ -170,8 +174,11 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
         .each('end', function() {
             completed++;
             if (calls === completed && self.active_visualization) {
-                self.possible_visualizations[self.active_visualization].stop();
-                self.possible_visualizations[self.active_visualization].start();
+                self.possible_visualizations[self.active_visualization].set_xy(
+                    self.nodes
+                        .transition()
+                        .duration(1000)
+                );
             }
         });
 }

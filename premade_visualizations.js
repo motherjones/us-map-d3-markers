@@ -2,12 +2,12 @@ var PremadeVis = function() {
     //this is just a namespace. maybe put helper functions here?
 };
 
-PremadeVis.basic = function(nodes, container, options) {
+PremadeVis.basic = function(nodes, container, options, app) {
     return this;
 }
 
-PremadeVis.basic.prototype.init = function(nodes, container, options) {
-    this.nodes = nodes;
+PremadeVis.basic.prototype.init = function(nodes, container, options, app) {
+    this.app = app;
     this.container = container;
     this.transition_duration = 1000;
     this.show_opacity = '0.4';
@@ -46,7 +46,7 @@ PremadeVis.basic.prototype.get_xy = function(node, i) {
     }
 }
 PremadeVis.basic.prototype.get_transform_xy = function(node, i) {
-    var element = this.nodes[0][i];
+    var element = this.app.nodes[0][i];
     var transform_string = jQuery(element).attr('transform');
     var just_the_numbers = transform_string
         .replace(/translate\(/, '')
@@ -54,7 +54,7 @@ PremadeVis.basic.prototype.get_transform_xy = function(node, i) {
     return just_the_numbers.split(',');
 }
 PremadeVis.basic.prototype.determine_setter = function() {
-    if (this.nodes[0][0].tagName === 'g') {
+    if (this.app.nodes[0][0].tagName === 'g') {
         //ugh
         this.set_xy = this.set_transform_xy;
     }
@@ -72,8 +72,8 @@ PremadeVis.basic.prototype.set_transform_xy = function(nodes, get_function) {
         })
 }
 
-PremadeVis.map = function(nodes, container, options) {
-    this.init(nodes, container, options);
+PremadeVis.map = function(nodes, container, options, app) {
+    this.init(nodes, container, options, app);
 
     this.map_projection = this.map_projection
             .translate([this.w/2 - this.padding, this.h/2 - this.padding])
@@ -97,7 +97,7 @@ PremadeVis.map = function(nodes, container, options) {
     return this;
 }
 PremadeVis.list = function(nodes, container, options, app) {
-    this.init(nodes, container, options);
+    this.init(nodes, container, options, app);
     this.app = app;
 }
 PremadeVis.list.prototype = new PremadeVis.basic;
@@ -140,15 +140,16 @@ PremadeVis.list.prototype.start = function() {
     for (var i = 0; i < this.num_columns; i++) {
         this.x_pos_list.push( i * (this.node_dimensions[0] + options.padding) )
     }
-
+/*
     this.nodes.sort(function(a, b) {
                     return b[self.app.active_size_type]
                          - a[self.app.active_size_type];
     }).order();
+    */
 
 
     this.set_xy(
-        this.nodes
+        this.app.nodes
             .transition()
             .duration(this.transition_duration),
         this.get_xy
@@ -183,7 +184,7 @@ PremadeVis.map.prototype = new PremadeVis.basic;
 PremadeVis.map.prototype.start = function() {
     var self = this;
     this.set_xy(
-        this.nodes
+        this.app.nodes
             .transition()
             .duration(this.transition_duration),
         this.get_xy
@@ -287,11 +288,10 @@ PremadeVis.map.prototype.stop = function() {
         });
 }
 
-PremadeVis.force = function(nodes, container, options) {
-    this.init(nodes, container, options);
+PremadeVis.force = function(nodes, container, options, app) {
+    this.init(nodes, container, options, app);
     this.force_gravity = .08;
     this.force_charge = -50;
-    this.init(nodes, container, options);
     return this;
 }
 PremadeVis.force.prototype = new PremadeVis.basic;
@@ -303,7 +303,7 @@ PremadeVis.force.prototype.start = function() {
         this.create_force_vis()
     }
 
-    if (!this.nodes[0][0].x) {
+    if (!this.app.nodes[0][0].x) {
         var force_nodes = this.force_vis.nodes(); 
         for (var i in force_nodes) {
             if (i === 'parentNode') {
@@ -321,12 +321,12 @@ PremadeVis.force.prototype.start = function() {
     if (!this.force_drag) {
         this.create_force_drag();
     }
-    this.nodes.call(this.force_drag);
+    this.app.nodes.call(this.force_drag);
 };
 
 PremadeVis.force.prototype.stop = function() {
     this.force_vis.stop();
-    this.nodes.on('mousedown.drag', null);
+    this.app.nodes.on('mousedown.drag', null);
 }
 
 PremadeVis.force.prototype.create_force_drag = function() {
@@ -347,15 +347,15 @@ PremadeVis.force.prototype.create_force_drag = function() {
 PremadeVis.force.prototype.create_force_vis = function() {
     var self = this;
     this.force_tick = function() {
-        self.nodes
+        self.app.nodes
             .attr('transform', function(d, i) {
-                var element = self.nodes[0][i];
+                var element = self.app.nodes[0][i];
                 return "translate(" + element.x + "," + element.y + ")";
             });
     }
 
     this.force_vis = d3.layout.force()
-        .nodes(this.nodes[0])
+        .nodes(this.app.nodes[0])
         .gravity(this.force_gravity) //.08
         .charge(this.force_charge) // -50
         .size([this.w - this.padding * 2, this.h - this.padding * 2])
@@ -363,7 +363,7 @@ PremadeVis.force.prototype.create_force_vis = function() {
 }
 
 PremadeVis.force.prototype.get_xy = function(node, i) {
-    var element = this.nodes[0][i];
+    var element = this.app.nodes[0][i];
     if (element.x && element.y) {
         return [element.x, element.y]
     }
