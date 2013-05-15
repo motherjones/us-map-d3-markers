@@ -36,6 +36,8 @@ body {
 	letter-spacing: 1px;
 	line-height: normal;
 	margin-bottom: 1em;
+	margin-left: .2em;
+	margin-right: .2em;
 	text-transform: uppercase;
 	padding: 4px;
 }
