@@ -99,18 +99,18 @@ SpreadsheetToD3.prototype.create_datastructure = function() {
             }
             this.size_types_desired[key] = { 'name' : key };
 
-            var items_with_values = 0;
-            for (var row in this.rows) {
-                if (this.rows[row][key] && this.rows[row][key] > 0) {
-                    items_with_values++;
-                }
-            }
-
             var scale_key;
             if (this.scale_against) {
                 scale_key = this.scale_against;
             } else {
                 scale_key = key;
+            }
+
+            var items_with_values = 0;
+            for (var row in this.rows) {
+                if (this.rows[row][scale_key] && this.rows[row][scale_key] > 0) {
+                    items_with_values++;
+                }
             }
 
             //var max = Math.floor(this.w / items_with_values);
