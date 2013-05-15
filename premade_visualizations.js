@@ -146,12 +146,6 @@ PremadeVis.list.prototype.start = function() {
     for (var i = 0; i < this.num_columns; i++) {
         this.x_pos_list.push( i * (this.node_dimensions[0] + options.padding) )
     }
-/*
-    this.nodes.sort(function(a, b) {
-                    return b[self.app.active_size_type]
-                         - a[self.app.active_size_type];
-    }).order();
-    */
 
 
     this.set_xy(
@@ -160,6 +154,13 @@ PremadeVis.list.prototype.start = function() {
             .duration(this.transition_duration),
         this.get_xy
     );
+}
+PremadeVis.list.prototype.label = function() {
+    if (this.max_list_items) {
+        return 'Top ' + this.max_list_items;
+    } else {
+        return 'List';
+    }
 }
 
 PremadeVis.list.prototype.get_xy = function(d, i) {
@@ -170,7 +171,7 @@ PremadeVis.list.prototype.get_xy = function(d, i) {
         + (this.node_dimensions[1] / 2)
         + options.padding;
 
-    if (i > this.max_list_items) {
+    if (i >= this.max_list_items) {
         y = y + $(window).height();
     }
     return [x, y];
@@ -266,6 +267,10 @@ PremadeVis.map.prototype.state_abbr_dictionary = {
     'WY' : 'Wyoming'
 }
 
+PremadeVis.map.prototype.label = function() {
+    return 'Map';
+}
+
 PremadeVis.map.prototype.get_xy = function(node) {
     if (node.lon && node.lat ) { 
         var xy = this.map_projection([node.lon, node.lat]);
@@ -325,6 +330,9 @@ PremadeVis.force.prototype.start = function() {
     }
     this.app.nodes.call(this.force_drag);
 };
+PremadeVis.force.prototype.label = function() {
+    return "Force Layout";
+}
 
 PremadeVis.force.prototype.stop = function() {
     this.force_vis.stop();
