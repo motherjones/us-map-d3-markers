@@ -70,7 +70,7 @@ SpreadsheetToD3.prototype.create_visualization_button = function(type) {
     var self = this;
     var element = jQuery('<button class="' + this.vis_button_class 
             + '" id="' + this.vis_button_id_prefix + type + '">' 
-            + type + '</button>');
+            + this.possible_visualizations[type].label() + '</button>');
     (function(type) {
         element.click(function() {
             self.action_container.find('.' + self.vis_button_class + '.selected').removeClass('selected');
@@ -259,6 +259,7 @@ SpreadsheetToD3.prototype.drawGraph = function(){
 
     var tooltip = jQuery('<div id="tooltip"></div>');
     jQuery('#' + this.vis_container_id).append(tooltip);
+    tooltip.addClass('hidden');
 
     this.svg.selectAll("g.circle_container")
         .on("mouseover", function(d) {
@@ -280,11 +281,8 @@ SpreadsheetToD3.prototype.drawGraph = function(){
                 if ( tooltip.outerWidth() + d3.event.offsetX > jQuery('body').outerWidth() ) {
                     tooltip.css('left', d3.event.offsetX - tooltip.outerWidth());
                 }
-                console.log(jQuery('body').outerHeight());
-                console.log(tooltip.outerHeight());
-                console.log();
-                if ( tooltip.outerHeight() + d3.event.offsetY > jQuery('body').outerHeight() ) {
-                    tooltip.css('left', d3.event.offsetY - tooltip.outerHeight());
+                if ( tooltip.outerHeight() + d3.event.pageY > jQuery('body').outerHeight() ) {
+                    tooltip.css('top', d3.event.offsetY - tooltip.outerHeight());
                 }
                 tooltip.removeClass('hidden');
                 
