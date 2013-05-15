@@ -46,6 +46,7 @@ body {
 	margin-right: .2em;
 	text-transform: uppercase;
 	padding: 4px;
+	margin-right: 3px;
 }
 
 #sorts button.size_button:hover {
