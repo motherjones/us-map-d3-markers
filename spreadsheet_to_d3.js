@@ -273,16 +273,16 @@ SpreadsheetToD3.prototype.drawGraph = function(){
                     'top': d3.event.offsetY
                 }, 200);
                 */
-                tooltip.css('left', d3.event.offsetX);
-                tooltip.css('top', d3.event.offsetY);
+                tooltip.css('left', d3.event.clientX);
+                tooltip.css('top', d3.event.clientY);
 
                 jQuery(tooltip).html(out);
 
-                if ( tooltip.outerWidth() + d3.event.offsetX > jQuery('body').outerWidth() ) {
-                    tooltip.css('left', d3.event.offsetX - tooltip.outerWidth());
+                if ( tooltip.outerWidth() + d3.event.clientX > jQuery('body').outerWidth() ) {
+                    tooltip.css('left', d3.event.clientX - tooltip.outerWidth());
                 }
                 if ( tooltip.outerHeight() + d3.event.pageY > jQuery('body').outerHeight() ) {
-                    tooltip.css('top', d3.event.offsetY - tooltip.outerHeight());
+                    tooltip.css('top', d3.event.clientY - tooltip.outerHeight());
                 }
                 tooltip.removeClass('hidden');
                 
