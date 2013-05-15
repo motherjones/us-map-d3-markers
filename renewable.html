@@ -41,9 +41,10 @@
         //padding within visualization
         padding : 20,
         // for list view. how many items you want to show at once
-        max_list_items : 10,
+        max_list_items : 19,
 
         // if your column doesn't start with this, it won't get a size button for it
+        // this is a regular expression, ask for help if you don't know what that means
         size_type_signifier : /^size/,
 
         // this array says which visualizations we want
@@ -55,18 +56,20 @@
         ],
 
         tooltip_template: '<h3>{state}</h3> \
-            <p>Solar: {sizesolar}</p> \
-            <p>Hydroelectric: {sizehydro}</p> \
-            <p>Geothermal: {sizegeothermal}</p> \
-            <p>Total: {sizetotal}</p> \
+            <p>Solar: {commassolar} billion BTUs</p> \
+            <p>Wind: {commaswind} billion BTUs</p> \
+            <p>Hydroelectric: {commashydro} billion BTUs</p> \
+            <p>Geothermal: {commasgeo} billion BTUs</p> \
+            <p>Total: {commastotal} billion BTUs</p> \
         ',
 
         // don't fuck with me unless you want a map that isn't the contental US
-            // to shrink/grow the map, 1000 = 100% 
         map_projection : d3.geo.albersUsa(),
 
         // this is the html element we put the buttons
         action_container_id : 'sorts',
+        // this is the id of the html element we put the visualization
+        vis_container_id : 'container',
 
     };
 
@@ -85,7 +88,7 @@
 
   </script>
 
-	<p id="source">By tk producer, Mother Jones. Source: tk.</p>
+	<p id="source">By Ben Breedlove, Mother Jones. Source: Energy Information Administration.</p>
 
 	</div>
   </body>

@@ -1,5 +1,10 @@
 body {
 	font-family:'Trebuchet MS',Helvetica,Arial,sans-serif;
+    width: 632px;
+    margin-left: 0;
+    margin-right: 0;
+/*    overflow:hidden; */
+    height: 584px;
 
 }
 

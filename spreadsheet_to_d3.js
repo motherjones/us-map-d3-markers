@@ -14,6 +14,7 @@ var SpreadsheetToD3 = function(dataset, options) {
     this.max_list_items = 20;
     this.size_type_signifier = /^size/;
     this.action_container_id = 'sorts';
+    this.vis_container_id = 'container';
     this.indicates_a_space_in_a_label = '-';
     this.first_vis = false;
     this.desired_visualizations = [
@@ -143,7 +144,7 @@ SpreadsheetToD3.prototype.create_size_buttons = function() {
     }
     // this is taking advantage of the fact that the for loop leaves debris
     // consider doing this in a less clever way
-    if (Object.keys(this.size_types_desired).length < 2) {
+    if (Object.keys(this.size_types_desired).length < 2 && element) {
         element.hide();
     }
 }
@@ -190,7 +191,7 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
 //defining svg, appending svg element to container
 SpreadsheetToD3.prototype.drawGraph = function(){
     var self = this;
-    this.svg = d3.select("#container")
+    this.svg = d3.select("#" + this.vis_container_id)
         .append("svg")
         .attr("width", this.w)
         .attr("height", this.h);
@@ -257,7 +258,7 @@ SpreadsheetToD3.prototype.drawGraph = function(){
 
 
     var tooltip = jQuery('<div id="tooltip"></div>');
-    jQuery('#container').append(tooltip);
+    jQuery('#' + this.vis_container_id).append(tooltip);
 
     this.svg.selectAll("g.circle_container")
         .on("mouseover", function(d) {
@@ -275,6 +276,16 @@ SpreadsheetToD3.prototype.drawGraph = function(){
                 tooltip.css('top', d3.event.offsetY);
 
                 jQuery(tooltip).html(out);
+
+                if ( tooltip.outerWidth() + d3.event.offsetX > jQuery('body').outerWidth() ) {
+                    tooltip.css('left', d3.event.offsetX - tooltip.outerWidth());
+                }
+                console.log(jQuery('body').outerHeight());
+                console.log(tooltip.outerHeight());
+                console.log();
+                if ( tooltip.outerHeight() + d3.event.offsetY > jQuery('body').outerHeight() ) {
+                    tooltip.css('left', d3.event.offsetY - tooltip.outerHeight());
+                }
                 tooltip.removeClass('hidden');
                 
             });
