@@ -282,9 +282,11 @@ SpreadsheetToD3.prototype.drawGraph = function(){
                 }
                 console.log(jQuery('body').outerHeight());
                 console.log(tooltip.outerHeight());
-                console.log();
+                console.log(d3.event.offsetY);
                 if ( tooltip.outerHeight() + d3.event.offsetY > jQuery('body').outerHeight() ) {
                     tooltip.css('left', d3.event.offsetY - tooltip.outerHeight());
+                    console.log(d3.event.offsetY - tooltip.outerHeight());
+                    console.log(d3.event.offsetY);
                 }
                 tooltip.removeClass('hidden');
                 
