@@ -259,6 +259,7 @@ SpreadsheetToD3.prototype.drawGraph = function(){
 
     var tooltip = jQuery('<div id="tooltip"></div>');
     jQuery('#' + this.vis_container_id).append(tooltip);
+    tooltip.addClass('hidden');
 
     this.svg.selectAll("g.circle_container")
         .on("mouseover", function(d) {
@@ -280,13 +281,8 @@ SpreadsheetToD3.prototype.drawGraph = function(){
                 if ( tooltip.outerWidth() + d3.event.offsetX > jQuery('body').outerWidth() ) {
                     tooltip.css('left', d3.event.offsetX - tooltip.outerWidth());
                 }
-                console.log(jQuery('body').outerHeight());
-                console.log(tooltip.outerHeight());
-                console.log(d3.event.offsetY);
-                if ( tooltip.outerHeight() + d3.event.offsetY > jQuery('body').outerHeight() ) {
-                    tooltip.css('left', d3.event.offsetY - tooltip.outerHeight());
-                    console.log(d3.event.offsetY - tooltip.outerHeight());
-                    console.log(d3.event.offsetY);
+                if ( tooltip.outerHeight() + d3.event.pageY > jQuery('body').outerHeight() ) {
+                    tooltip.css('top', d3.event.offsetY - tooltip.outerHeight());
                 }
                 tooltip.removeClass('hidden');
                 
