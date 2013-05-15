@@ -273,16 +273,16 @@ SpreadsheetToD3.prototype.drawGraph = function(){
                     'top': d3.event.offsetY
                 }, 200);
                 */
-                tooltip.css('left', d3.event.clientX);
-                tooltip.css('top', d3.event.clientY);
+                tooltip.css('left', d3.event.pageX - self.vis_container.offset().left );
+                tooltip.css('top', d3.event.pageY - self.vis_container.offset().top - jQuery('body').offset().top);
 
                 jQuery(tooltip).html(out);
 
-                if ( tooltip.outerWidth() + d3.event.clientX > jQuery('body').outerWidth() ) {
-                    tooltip.css('left', d3.event.clientX - tooltip.outerWidth());
+                if ( tooltip.outerWidth() + d3.event.pageX > jQuery('body').outerWidth() ) {
+                    tooltip.css('left', d3.event.pageX - tooltip.outerWidth() - jQuery('body').offset().left );
                 }
                 if ( tooltip.outerHeight() + d3.event.pageY > jQuery('body').outerHeight() ) {
-                    tooltip.css('top', d3.event.clientY - tooltip.outerHeight());
+                    tooltip.css('top', d3.event.clientY - tooltip.outerHeight() );
                 }
                 tooltip.removeClass('hidden');
                 
@@ -292,7 +292,7 @@ SpreadsheetToD3.prototype.drawGraph = function(){
     .on("mouseout", function() {
 
         //Hide the tooltip
-        tooltip.addClass('hidden');
+        //tooltip.addClass('hidden');
     });
 }
 
