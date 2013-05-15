@@ -12,10 +12,16 @@ body {
 	
 }
 
-#hed {
-	
-	line-height: .5;
-	
+#hed h2 {
+
+	margin-bottom: 0em;
+}
+
+#hed p  {
+
+	margin-top: .5em;
+	line-height: 1.4em;
+	font-size: .9em;
 }
 
 #sorts label {
