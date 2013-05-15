@@ -105,15 +105,23 @@ SpreadsheetToD3.prototype.create_datastructure = function() {
                     items_with_values++;
                 }
             }
+
+            var scale_key;
+            if (this.scale_against) {
+                scale_key = this.scale_against;
+            } else {
+                scale_key = key;
+            }
+
             //var max = Math.floor(this.w / items_with_values);
             var max = Math.floor(3.5 * this.w / this.rows.length);
             this.size_types_desired[key].scale = d3.scale.linear()
-                .domain([d3.min(this.rows, function(d){return parseInt(d[key]);}), 
-                        d3.max(this.rows, function(d){return parseInt(d[key]);})])
+                .domain([d3.min(this.rows, function(d){return parseInt(d[scale_key]);}), 
+                        d3.max(this.rows, function(d){return parseInt(d[scale_key]);})])
                 //defining a minimum bubble size
                 .range([4, max]);
 
-            }
+        }
     }
 
 }
