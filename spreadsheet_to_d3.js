@@ -187,11 +187,8 @@ SpreadsheetToD3.prototype.resize_circles = function(type) {
         .each('end', function() {
             completed++;
             if (calls === completed && self.active_visualization) {
-                self.possible_visualizations[self.active_visualization].set_xy(
-                    self.nodes
-                        .transition()
-                        .duration(1000)
-                );
+                self.possible_visualizations[self.active_visualization].stop();
+                self.possible_visualizations[self.active_visualization].start();
             }
         });
 }
