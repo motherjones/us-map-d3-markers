@@ -18,6 +18,7 @@ NodeShapeType.basic.prototype.init = function(nodes, options, app) {
 NodeShapeType.basic.prototype.start = function(callback) {
     var deferreds = [];
     var self = this;
+
     this.elements = 
         this.do_sizing_transform(
             this.do_removing_transform(
@@ -97,8 +98,6 @@ NodeShapeType.basic.prototype.stop = function(callback) {
 };
 
 
-
-
 NodeShapeType.circles = function(nodes, options, app) {
     this.element_type = 'circle';
     return this.init(nodes, options, app);
@@ -120,6 +119,7 @@ NodeShapeType.circles.prototype.do_sizing_transform = function(transition_elemen
             }
         })
 }
+
 NodeShapeType.circles.prototype.do_removing_transform = function(transition_element) {
     return transition_element.attr('r', 0);
 }
