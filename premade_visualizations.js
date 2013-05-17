@@ -12,7 +12,7 @@ PremadeVis.basic.prototype.init = function(nodes, container, options, app) {
     this.container = container;
     this.transition_duration = 1000;
     this.show_opacity = '0.4';
-    this.hide_opacity = '0';
+    this.hide_opacity = '0.4';
     for (var option in options) {
         this[option] = options[option]
     }
