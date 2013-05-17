@@ -37,23 +37,42 @@ var SpreadsheetToD3 = function(dataset, options) {
     this.size_container = jQuery('<div id="size_container"><label>Choose Data: </label></div>');
     this.rows = dataset;
     this.active_size_type = false;
+    this.active_node_type = false;
     this.active_visualization = false;
     this.nodes;
 
     this.drawGraph(this.rows);
 
     this.set_possible_visualizations();
-    this.size_types_required = this.create_datastructure(dataset);
+    this.size_types_required = this.create_size_datastructure(dataset);
     this.create_size_buttons();
     this.create_visualization_buttons();
 
     
-    this.action_container.find('#' + this.size_button_id_prefix + this.active_size_type).click();
     this.action_container.find('#' + this.vis_button_id_prefix + this.first_vis).click();
+    this.action_container.find('#' + this.size_button_id_prefix + this.active_size_type).click();
 }
 
 
+SpreadsheetToD3.prototype.resize = function(type, callback) {
+    this.active_size_type = type;
+    this.possible_shapes[ this.active_shape_type ].resize(callback); 
+}
 
+SpreadsheetToD3.prototype.swap_shape_type = function(new_type, callback) {
+    var self = this;
+    if (this.active_shape_type === new_type) {
+        this.resize(this.active_size_type, callback);
+    } else if (this.active_shape_type) {
+        this.possible_shapes[ this.active_shape_type ].stop(function() {
+            self.active_shape_type = new_type;
+            self.possible_shapes[ new_type ].start(callback);
+        }); 
+    } else {
+        this.active_shape_type = new_type;
+        this.possible_shapes[ new_type ].start(callback);
+    }
+}
 
 
 
@@ -89,7 +108,7 @@ SpreadsheetToD3.prototype.create_visualization_button = function(type) {
 
 }
 
-SpreadsheetToD3.prototype.create_datastructure = function() {
+SpreadsheetToD3.prototype.create_size_datastructure = function() {
     var example_row = this.rows[0];
     this.size_types_desired = {};
     for (var key in example_row) {
@@ -144,8 +163,7 @@ SpreadsheetToD3.prototype.create_size_buttons = function() {
              element.click(function() {
                  self.action_container.find('.' + self.size_button_class + '.selected').removeClass('selected');
                  jQuery(this).addClass('selected');
-                 visObj.active_size_type = type;
-                 visObj.resize_circles(type);
+                 visObj.resize(type);
              })
         })(type, this);
         this.size_container.append(element);
@@ -157,42 +175,6 @@ SpreadsheetToD3.prototype.create_size_buttons = function() {
     }
 }
 
-SpreadsheetToD3.prototype.resize_circles = function(type) {
-    var self = this;
-    this.nodes.sort(function(a, b) {
-                    return b[type]
-                         - a[type];
-    }).order();
-    var calls = d3.selectAll('g.circle_container circle')[0].length;
-    var completed = 0;
-    d3.selectAll('g.circle_container circle')
-        .transition()
-        .duration(1000)
-        .attr('r', function(d) {
-            if ( d[self.active_size_type] && d[self.active_size_type] > 0 ) {
-                return self.size_types_desired[self.active_size_type].scale(
-                    d[self.active_size_type]
-                    );
-            } else {
-                return 0;
-            }
-        })
-        .style('fill', function(d) {
-            if (self.active_size_type && d[self.active_size_type.replace(self.size_type_signifier , 'color')]) {
-                return d[self.active_size_type.replace(self.size_type_signifier , 'color')];
-            } else {
-                return d.color;
-            }
-        })
-        .each('end', function() {
-            completed++;
-            if (calls === completed && self.active_visualization) {
-                self.possible_visualizations[self.active_visualization].stop();
-                self.possible_visualizations[self.active_visualization].start();
-            }
-        });
-}
-
 //defining svg, appending svg element to container
 SpreadsheetToD3.prototype.drawGraph = function(){
     var self = this;
@@ -202,9 +184,6 @@ SpreadsheetToD3.prototype.drawGraph = function(){
         .attr("height", this.h);
 
     //setting the projetion (using albers)
-
-
-
 
     //setting up a scale for the x axis ROUNDS ( probably going to need to do this by round, i.e. X value is 1 at big dance, 2 at 32, 3 at sweet 13, etc.)
     var xScale = d3.scale.linear()
@@ -230,24 +209,7 @@ SpreadsheetToD3.prototype.drawGraph = function(){
         })
 
 
-    var circles = this.nodes
-        .append('circle')
-        .attr("r", function(d){
-            if ( d[this.active_size_type] ) {
-                return self.size_types_desired[this.active_size_type].scale(
-                    d[this.active_size_type]
-                    );
-            } else {
-                return 0;
-            }
-        })
-    .style("fill", function(d){
-        return d.color;
-    })
-    .style("opacity", .6)
-        .attr("class", function(d) {
-            return d.class;
-        });
+    //HERE is where i used to make circles
 
     var texts = this.nodes
         .append("text")
@@ -304,13 +266,27 @@ SpreadsheetToD3.prototype.drawGraph = function(){
 
 SpreadsheetToD3.prototype.set_possible_visualizations = function() {
     this.possible_visualizations = {}
+    this.possible_shapes = {}
     for (i in this.desired_visualizations) {
         var vis = this.desired_visualizations[i];
         if (!this.first_vis) {
-            this.first_vis = vis; 
+            this.first_vis = this.active_visualization = vis; 
         }
 
         var new_vis = new PremadeVis[vis](this.nodes, this.svg, this.options, this);
+
+        for (var k = 0; k < new_vis.required_node_shapes.length; k++) {
+            var shape_type = new_vis.required_node_shapes[k];
+            if (!this.possible_shapes[ shape_type ] ) {
+                if (!this.first_shape) {
+                    this.first_shape = shape_type;
+                }
+
+                this.possible_shapes[ shape_type ] = 
+                    new NodeShapeType[ shape_type ](this.nodes, this.options, this); 
+            }
+        }
+
         this.possible_visualizations[vis] = new_vis;
     }
 };
