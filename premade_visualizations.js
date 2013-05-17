@@ -12,7 +12,7 @@ PremadeVis.basic.prototype.init = function(nodes, container, options, app) {
     this.container = container;
     this.transition_duration = 1000;
     this.show_opacity = '0.4';
-    this.hide_opacity = '0.4';
+    this.hide_opacity = '0';
     for (var option in options) {
         this[option] = options[option]
     }
@@ -82,7 +82,7 @@ PremadeVis.basic.prototype.set_transform_xy = function(nodes, get_function) {
 }
 
 PremadeVis.list = function(nodes, container, options, app) {
-    this.required_node_shapes = ['circles'];
+    this.required_node_shapes = ['rectangles'];
     this.init(nodes, container, options, app);
 }
 PremadeVis.list.prototype = new PremadeVis.basic;
@@ -94,8 +94,7 @@ PremadeVis.list.prototype.start = function() {
         self.start()
     });
 
-    this.sort();
-    this.app.swap_shape_type('circles', function() {self._start()})
+    this.app.swap_shape_type('rectangles', function() {self._start()})
 }
 
 PremadeVis.list.prototype._start = function() {
@@ -160,13 +159,30 @@ PremadeVis.list.prototype.get_xy = function(d, i) {
     }
     return [x, y];
 }
+PremadeVis.list.prototype.sort = function() {
+    var self = this;
+    this.nodes.sort(function(a, b) {
+                    return b[self.app.active_size_type]
+                         - a[self.app.active_size_type];
+    }).order();
+    this.set_xy(
+        self.app.nodes
+            .transition()
+            .duration(self.transition_duration),
+        self.get_xy
+    );
+}
 
 PremadeVis.list.prototype.stop = function() {
+    var self = this;
     jQuery(document).unbind('resize');
     d3.selectAll('.circle_container text')
-        .transition()
-        .duration(this.transition_duration)
-        .style('opacity', this.hide_opacity)
+        .each(function() {
+            d3.select(this)
+                .transition()
+                .duration(self.transition_duration)
+                .style('opacity', self.hide_opacity)
+        });
 }
 
 
@@ -212,7 +228,6 @@ PremadeVis.map.prototype = new PremadeVis.basic;
 PremadeVis.map.prototype.start = function() {
     var self = this;
 
-    this.sort();
 
     this.map_elements
         .style('display', 'block')
@@ -337,7 +352,6 @@ PremadeVis.force.prototype = new PremadeVis.basic;
 PremadeVis.force.prototype.start = function() {
     var self = this;
 
-    this.sort();
     if (!this.force_vis) {
         this.create_force_vis()
     }

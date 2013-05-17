@@ -56,6 +56,7 @@ var SpreadsheetToD3 = function(dataset, options) {
 
 SpreadsheetToD3.prototype.resize = function(type, callback) {
     this.active_size_type = type;
+    this.possible_visualizations[this.active_visualization].sort();
     this.possible_shapes[ this.active_shape_type ].resize(callback); 
 }
 
