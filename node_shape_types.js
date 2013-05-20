@@ -162,3 +162,48 @@ NodeShapeType.rectangles.prototype.do_removing_transform = function(transition_e
         .attr('height', 0)
         .attr('width', 0)
 }
+
+
+NodeShapeType.super_pac = function(nodes, options, app) {
+    this.element_type = 'rect';
+    return this.init(nodes, options, app);
+};
+NodeShapeType.super_pac.prototype = new NodeShapeType.basic;
+
+NodeShapeType.super_pac.prototype.do_sizing_transform = function(transition_element) {
+    var self = this;
+    return transition_element
+        .attr('width', function(d) {
+            if ( d[self.app.active_size_type] ) {
+                return self.app
+                    .size_types_desired[self.app.active_size_type]
+                    .scale(
+                        d[self.app.active_size_type]
+                    );
+            } else {
+                return 0;
+            }
+        })
+        .attr('height', function(d) {
+            if ( d[self.app.active_size_type] ) {
+                return self.app
+                    .size_types_desired[self.app.active_size_type]
+                    .scale(
+                        d[self.app.active_size_type]
+                    );
+            } else {
+                return 0;
+            }
+        })
+}
+NodeShapeType.super_pac.prototype.do_removing_transform = function(transition_element) {
+    return transition_element
+        .attr('height', 0)
+        .attr('width', 0)
+}
+
+NodeShapeType.super_pac.prototype.create_element = function(nodes) {
+    return nodes.append('image')
+        .attr('xlink:href', 'pac.svg') 
+    ;
+}
