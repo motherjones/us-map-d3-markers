@@ -195,6 +195,30 @@ NodeShapeType.super_pac.prototype.do_sizing_transform = function(transition_elem
                 return 0;
             }
         })
+        .attr('x', function(d) {
+            if ( d[self.app.active_size_type] ) {
+                return (self.app
+                    .size_types_desired[self.app.active_size_type]
+                    .scale(
+                        d[self.app.active_size_type]
+                    )
+                    / -2 );
+            } else {
+                return 0;
+            }
+        })
+        .attr('y', function(d) {
+            if ( d[self.app.active_size_type] ) {
+                return (self.app
+                    .size_types_desired[self.app.active_size_type]
+                    .scale(
+                        d[self.app.active_size_type]
+                    )
+                    / -2 );
+            } else {
+                return 0;
+            }
+        })
 }
 NodeShapeType.super_pac.prototype.do_removing_transform = function(transition_element) {
     return transition_element
