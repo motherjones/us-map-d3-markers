@@ -83,7 +83,7 @@ SpreadsheetToD3.prototype.create_visualization_button = function(vis) {
         var type = vis.visualizations[i];
         var element = jQuery('<button class="' + this.vis_button_class 
                 + '" id="' + this.vis_button_id_prefix + vis.data + type + '">' 
-                + type + '</button>');
+                + this.possible_visualizations[type].label(vis) + '</button>');
         (function(type) {
             element.click(function() {
                 self.action_container.find('.' + self.vis_button_class + '.selected').removeClass('selected');
