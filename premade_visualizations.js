@@ -93,7 +93,11 @@ PremadeVis.list.prototype.start = function() {
         self.stop()
         self.start()
     });
-
+    for (var i = 0; i < this.app.desired_visualizations.length; i++) {
+        if (this.app.desired_visualizations[i].data === this.app.active_size_type) {
+            this.max_list_items = this.app.desired_visualizations[i].max_list_items;
+        }
+    }
     this.app.swap_shape_type('rectangles', function() {self._start()})
 }
 
@@ -138,9 +142,9 @@ PremadeVis.list.prototype._start = function() {
         this.get_xy
     );
 }
-PremadeVis.list.prototype.label = function() {
-    if (this.max_list_items) {
-        return 'Top ' + this.max_list_items;
+PremadeVis.list.prototype.label = function(dataset) {
+    if (dataset.max_list_items) {
+        return 'Top ' + dataset.max_list_items;
     } else {
         return 'List';
     }
@@ -187,7 +191,7 @@ PremadeVis.list.prototype.stop = function() {
 
 
 PremadeVis.map = function(nodes, container, options, app) {
-    this.required_node_shapes = ['super_pac'];
+    this.required_node_shapes = ['circles'];
     this.init(nodes, container, options, app);
 
     this.map_projection = this.map_projection
@@ -237,7 +241,7 @@ PremadeVis.map.prototype.start = function() {
         .each('end', function(d) {
             self.map_elements.style('display', 'block');
         });
-    this.app.swap_shape_type('super_pac', function() {self._start()})
+    this.app.swap_shape_type('circles', function() {self._start()})
 }
 
 PremadeVis.map.prototype._start = function() {
