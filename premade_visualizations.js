@@ -187,7 +187,7 @@ PremadeVis.list.prototype.stop = function() {
 
 
 PremadeVis.map = function(nodes, container, options, app) {
-    this.required_node_shapes = ['super_pac'];
+    this.required_node_shapes = ['circles'];
     this.init(nodes, container, options, app);
 
     this.map_projection = this.map_projection
@@ -237,7 +237,7 @@ PremadeVis.map.prototype.start = function() {
         .each('end', function(d) {
             self.map_elements.style('display', 'block');
         });
-    this.app.swap_shape_type('super_pac', function() {self._start()})
+    this.app.swap_shape_type('circles', function() {self._start()})
 }
 
 PremadeVis.map.prototype._start = function() {
