@@ -17,6 +17,7 @@ NodeShapeType.basic.prototype.init = function(nodes, options, app) {
 };
 NodeShapeType.basic.prototype.start = function(callback) {
     var deferreds = [];
+    var defered_set = false;
     var self = this;
 
     this.elements = 
@@ -39,9 +40,14 @@ NodeShapeType.basic.prototype.start = function(callback) {
             deferreds.push( this.deferred );
         })
         .each('end', function() { 
+            if (!defered_set) {
+                jQuery.when.apply(null, deferreds).done(function() {
+                    callback();
+                });
+                defered_set = true;
+            }
             this.deferred.resolve();
         });
-    jQuery.when.apply(null, deferreds).done(callback);
     return this;
 };
 

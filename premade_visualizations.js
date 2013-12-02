@@ -93,7 +93,11 @@ PremadeVis.list.prototype.start = function() {
         self.stop()
         self.start()
     });
-
+    for (var i = 0; i < this.app.desired_visualizations.length; i++) {
+        if (this.app.desired_visualizations[i].data === this.app.active_size_type) {
+            this.max_list_items = this.app.desired_visualizations[i].max_list_items;
+        }
+    }
     this.app.swap_shape_type('rectangles', function() {self._start()})
 }
 
@@ -138,9 +142,9 @@ PremadeVis.list.prototype._start = function() {
         this.get_xy
     );
 }
-PremadeVis.list.prototype.label = function() {
-    if (this.max_list_items) {
-        return 'Top ' + this.max_list_items;
+PremadeVis.list.prototype.label = function(dataset) {
+    if (dataset.max_list_items) {
+        return 'Top ' + dataset.max_list_items;
     } else {
         return 'List';
     }
