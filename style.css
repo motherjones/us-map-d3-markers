@@ -1,5 +1,27 @@
 body {
 	font-family:'Trebuchet MS',Helvetica,Arial,sans-serif;
+    width: 632px;
+    margin-left: 0;
+    margin-right: 0;
+/*    overflow:hidden; */
+    height: 584px;
+
+}
+
+#bubble-mapper {
+	
+}
+
+#hed h3 {
+
+	margin-bottom: 0em;
+}
+
+#hed p  {
+
+	margin-top: .5em;
+	line-height: 1.4em;
+	font-size: .9em;
 }
 
 #sorts label {
@@ -8,7 +30,7 @@ body {
 	letter-spacing: 1px;
 	line-height: normal;
 	text-transform: uppercase;
-	padding: 8px;
+	
 }
 
 #sorts button.size_button,
@@ -20,8 +42,11 @@ body {
 	letter-spacing: 1px;
 	line-height: normal;
 	margin-bottom: 1em;
+	margin-left: .2em;
+	margin-right: .2em;
 	text-transform: uppercase;
 	padding: 4px;
+	margin-right: 3px;
 }
 
 #sorts button.size_button:hover {
@@ -80,25 +105,18 @@ body {
 	color: #fff;
 }
 
+#container {
+    position: relative;
+}
+
 #container path {
 	fill-opacity: 0;
 	stroke: gray;
 	stroke-width: 1;	
 }
 
-text#tooltip {
-	font-size: .7em;
-	font-weight: bold;
-	letter-spacing: 1px;
-	line-height: normal;
-	margin-bottom: 1em;
-	text-transform: uppercase;
-	padding: 8px;
-
-}
-
-text#tooltip.hidden {
-	display:none;
+g.circle_container text {
+    font-size: .7em;
 }
 
 circle {
@@ -106,6 +124,7 @@ circle {
   -o-transition: all 0.15s;
   -webkit-transition: all 0.15s;
   transition: all 0.15s;
+  fill: #72C050;
 }
 
 circle:hover {
@@ -116,7 +135,22 @@ circle:hover {
 }
 
 #tooltip {
+	
+	font-size: .7em;
+	font-weight: bold;
+	letter-spacing: 1px;
+	line-height: normal;
+	margin-bottom: 1em;
+	text-transform: uppercase;
+	padding: 8px;
+
+    background-color: red;
+}
+
+
+#tooltip {
   position: absolute;
+  opacity: 1;
   width: 190px;
   height: auto;
   padding: 10px;
@@ -128,10 +162,16 @@ circle:hover {
 }
 
 #tooltip.hidden {
-  display: none;
-  -moz-transition: all 0.15s;
-  -o-transition: all 0.15s;
-  -webkit-transition: all 0.15s;
-  transition: all 0.15s;
+  opacity: 0;
+  -moz-transition: opacity 0.4s;
+  -o-transition: opacity 0.4s;
+  -webkit-transition: opacity 0.4s;
+  transition: opacity 0.4s;
 }
 
+#source {
+	
+	font-style: italic;
+	color: #adadad;
+	font-size: .8em;
+}

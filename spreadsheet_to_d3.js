@@ -6,20 +6,15 @@ var SpreadsheetToD3 = function(dataset, options) {
     //setable options
     this.size_button_id_prefix = 'size_button_';
     this.size_button_class = 'size_button';
+    this.vis_button_container_id_prefix = 'vis_button_container_';
     this.vis_button_id_prefix = 'vis_button_';
     this.vis_button_class = 'vis_button';
     this.w = 632;
     this.h = 400;
     this.padding = 20;
-    this.size_type_signifier = /^size/;
     this.action_container_id = 'sorts';
-    this.indicates_a_space_in_a_label = '-';
+    this.vis_container_id = 'container';
     this.first_vis = false;
-    // this array says which visualizations we want. they must match those in POSSIBLE_VISUALIZATIONS
-    this.desired_visualizations = [
-        'map',
-        'force'
-    ]
 
     this.options = options;
     for (key in options) {
@@ -27,27 +22,47 @@ var SpreadsheetToD3 = function(dataset, options) {
     }
 
     this.action_container = jQuery('#' + this.action_container_id);
-    this.vis_container = jQuery('<div id="vis_container"><label>Choose Visualization</label></div>');
-    this.size_container = jQuery('<div id="size_container"><label>Choose Data</label></div>');
+    this.vis_container = jQuery('<div id="vis_container"><label>Choose Visualization: </label></div>');
+    this.size_container = jQuery('<div id="size_container"><label>Choose Data: </label></div>');
     this.rows = dataset;
     this.active_size_type = false;
+    this.active_node_type = false;
     this.active_visualization = false;
     this.nodes;
 
     this.drawGraph(this.rows);
-
+    
+    this.create_scale();
     this.set_possible_visualizations();
-    this.size_types_required = this.create_datastructure(dataset);
+
     this.create_size_buttons();
     this.create_visualization_buttons();
-
     
+    this.action_container.find('#' + this.vis_button_id_prefix + this.active_size_type + this.first_vis).click();
     this.action_container.find('#' + this.size_button_id_prefix + this.active_size_type).click();
-    this.action_container.find('#' + this.vis_button_id_prefix + this.first_vis).click();
 }
 
 
+SpreadsheetToD3.prototype.resize = function(type, callback) {
+    this.active_size_type = type;
+    this.possible_visualizations[this.active_visualization].sort();
+    this.possible_shapes[ this.active_shape_type ].resize(callback); 
+}
 
+SpreadsheetToD3.prototype.swap_shape_type = function(new_type, callback) {
+    var self = this;
+    if (this.active_shape_type === new_type) {
+        this.resize(this.active_size_type, callback);
+    } else if (this.active_shape_type) {
+        this.possible_shapes[ this.active_shape_type ].stop(function() {
+            self.active_shape_type = new_type;
+            self.possible_shapes[ new_type ].start(callback);
+        }); 
+    } else {
+        this.active_shape_type = new_type;
+        this.possible_shapes[ new_type ].start(callback);
+    }
+}
 
 
 
@@ -60,123 +75,109 @@ SpreadsheetToD3.prototype.create_visualization_buttons = function() {
     }
 }
 
-SpreadsheetToD3.prototype.create_visualization_button = function(type) {
+SpreadsheetToD3.prototype.create_visualization_button = function(vis) {
     var self = this;
-    var element = jQuery('<button class="' + this.vis_button_class 
-            + '" id="' + this.vis_button_id_prefix + type + '">' 
-            + type + '</button>');
-    (function(type) {
-        element.click(function() {
-            self.action_container.find('.' + self.vis_button_class + '.selected').removeClass('selected');
-            jQuery(this).addClass('selected');
-            if (self.active_visualization) {
-                self.possible_visualizations[self.active_visualization].stop();
-            }
-            self.active_visualization = type;
-            self.possible_visualizations[type].start();
-        })
-    })(type);
-    this.vis_container.append(element);
-    if (this.desired_visualizations.length < 2) {
-        element.hide();
+    var data_specific_vis_container = jQuery('<ul id="'
+        + this.vis_button_id_prefix + vis.data + '"></ul>').hide(); 
+    for (var i = 0; i < vis.visualizations.length; i++) {
+        var type = vis.visualizations[i];
+        var element = jQuery('<button class="' + this.vis_button_class 
+                + '" id="' + this.vis_button_id_prefix + vis.data + type + '">' 
+                + this.possible_visualizations[type].label(vis) + '</button>');
+        (function(type) {
+            element.click(function() {
+                self.action_container.find('.' + self.vis_button_class + '.selected').removeClass('selected');
+                jQuery(this).addClass('selected');
+                if (self.active_visualization) {
+                    self.possible_visualizations[self.active_visualization].stop();
+                }
+                self.active_visualization = type;
+                //fixme PUT SWAP SHAPE TYPE HERE
+                self.possible_visualizations[type].start();
+            })
+        })(type);
+        data_specific_vis_container.append(element);
     }
-
+    this.vis_container.append(data_specific_vis_container);
 }
 
-SpreadsheetToD3.prototype.create_datastructure = function() {
-    var example_row = this.rows[0];
-    this.size_types_desired = {};
-    for (var key in example_row) {
-        if ( key.toLowerCase().match(this.size_type_signifier) ) {
-            if (!this.active_size_type) {
-                this.active_size_type = key;
+SpreadsheetToD3.prototype.create_scale = function() {
+    for (var i = 0; i < this.desired_visualizations.length; i++) {
+        var scale_key = this.desired_visualizations[i].scale_against 
+            ? this.desired_visualizations[i].scale_against
+            : this.desired_visualizations[i].data
+        ;
+        var items_with_values = 0;
+        for (var row in this.rows) {
+            if (this.rows[row][scale_key] && this.rows[row][scale_key] > 0) {
+                items_with_values++;
             }
-            this.size_types_desired[key] = { 'name' : key };
+        }
 
-            var items_with_values = 0;
-            for (var row in this.rows) {
-                if (this.rows[row][key]) {
-                    items_with_values++;
-                }
-            }
-            var max = Math.floor(this.w / 2 / items_with_values);
-            this.size_types_desired[key].scale = d3.scale.linear()
-                .domain([d3.min(this.rows, function(d){return d[key];}), 
-                        d3.max(this.rows, function(d){return d[key];})])
-                //defining a minimum bubble size
-                .range([5, max]);
-
-            }
+        //var max = Math.floor(this.w / items_with_values);
+        var max = Math.floor(3.5 * this.w / items_with_values);
+        this.desired_visualizations[i].scale = d3.scale.linear()
+            .domain([d3.min(this.rows, function(d){return parseInt(d[scale_key]);}), 
+                    d3.max(this.rows, function(d){return parseInt(d[scale_key]);})])
+            //defining a minimum bubble size
+            .range([4, max]);
     }
 
 }
 
 SpreadsheetToD3.prototype.create_size_buttons = function() {
     var self = this;
-    if (Object.keys(this.size_types_desired).length > 1) {
-        this.action_container.append(this.size_container);
-    }
-    for (var type in this.size_types_desired) {
-        var label = type.toLowerCase().replace(this.size_type_signifier, '');
-        var label_pieces = label.split(this.indicates_a_space_in_a_label);
-        var finished_label = '';
-        for (var i = 0; i < label_pieces.length; i++) {
-            var piece = label_pieces[i];
-            finished_label += ' ' + piece.charAt(0).toUpperCase() + piece.slice(1);
-        }
-        var element = jQuery('<button class="' + this.size_button_class + '" id="' + this.size_button_id_prefix + type +'">' + finished_label + '</button>');
-        (function(type, visObj) {
+    this.action_container.append(this.size_container);
+
+    for (var i = 0; i < this.desired_visualizations.length; i++) {
+        var vis = this.desired_visualizations[i];
+        var element = jQuery('<button class="' + this.size_button_class 
+                + '" id="' + this.size_button_id_prefix + vis.data + '">' 
+                + vis.label + '</button>');
+        (function(vis) {
              element.click(function() {
                  self.action_container.find('.' + self.size_button_class + '.selected').removeClass('selected');
                  jQuery(this).addClass('selected');
-                 visObj.active_size_type = type;
-                 visObj.resize_circles(type);
+                 jQuery('#vis_container ul').hide()
+                 jQuery('#' + self.vis_button_id_prefix + vis.data).show();
+                 if (vis.visualizations.length > 1) {
+                     jQuery('#vis_container').show();
+                 } else {
+                     jQuery('#vis_container').hide();
+                 }
+
+                 var new_vis = (vis.visualizations.indexOf(self.active_visualization) !== -1)
+                    ? self.active_visualization
+                    : vis.visualizations[0];
+
+                 self.resize(vis.data, function() {
+                     self.action_container.find('#' + self.vis_button_id_prefix + self.active_size_type + new_vis).click();
+                 });
              })
-        })(type, this);
+        })(vis);
+
         this.size_container.append(element);
+
+        if (!this.active_size_type) {
+            this.active_size_type = vis.data;
+        }
     }
     // this is taking advantage of the fact that the for loop leaves debris
     // consider doing this in a less clever way
-    if (Object.keys(this.size_types_desired).length < 2) {
+    if (this.desired_visualizations.length < 2 && element) {
         element.hide();
     }
-}
-
-SpreadsheetToD3.prototype.resize_circles = function(type) {
-    var self = this;
-    d3.selectAll('g.circle_container circle')
-        .transition()
-        .duration(1000)
-        .attr('r', function(d) {
-            if ( d[self.active_size_type] ) {
-                return self.size_types_desired[self.active_size_type].scale(
-                    d[self.active_size_type]
-                    );
-            } else {
-                return 0;
-            }
-        })
-        .style('fill', function(d) {
-            if (self.active_size_type && d[self.active_size_type.replace(self.size_type_signifier , 'color')]) {
-                return d[self.active_size_type.replace(self.size_type_signifier , 'color')];
-            } else {
-                return d.color;
-            }
-        })
 }
 
 //defining svg, appending svg element to container
 SpreadsheetToD3.prototype.drawGraph = function(){
     var self = this;
-    this.svg = d3.select("#container")
+    this.svg = d3.select("#" + this.vis_container_id)
         .append("svg")
         .attr("width", this.w)
         .attr("height", this.h);
 
     //setting the projetion (using albers)
-
-
-
 
     //setting up a scale for the x axis ROUNDS ( probably going to need to do this by round, i.e. X value is 1 at big dance, 2 at 32, 3 at sweet 13, etc.)
     var xScale = d3.scale.linear()
@@ -202,64 +203,99 @@ SpreadsheetToD3.prototype.drawGraph = function(){
         })
 
 
-    var circles = this.nodes
-        .append('circle')
-        .attr("r", function(d){
-            if ( d[this.active_size_type] ) {
-                return self.size_types_desired[this.active_size_type].scale(
-                    d[this.active_size_type]
-                    );
-            } else {
-                return 0;
-            }
-        })
-    .style("fill", function(d){
-        return d.color;
-    })
-    .style("opacity", .6)
-        .attr("class", function(d) {
-            return d.class;
-        });
+    //HERE is where i used to make circles
 
     var texts = this.nodes
         .append("text")
         .text(function(d){
             return d.label;
         })
-    .attr("class", function(d){
-        return d.class;
-    });
+        .attr("class", function(d){
+            return d.class;
+        })
+        .style('text-anchor', 'middle')
+        .style('opacity', 0)
+        .style('baseline-shift', '10px');
 
-    this.svg.append('text')
-        .attr('id', 'tooltip')
-        .classed("hidden", true);
-    this.svg.selectAll("g")
+
+    var tooltip = jQuery('<div id="tooltip"></div>');
+    jQuery('#' + this.vis_container_id).append(tooltip);
+    tooltip.addClass('hidden');
+
+    this.svg.selectAll("g.circle_container")
         .on("mouseover", function(d) {
-            //Get this bar's x/y values, then augment for the tooltip
-            d3.select("#tooltip")
-            .attr('transform', "translate(" + d3.event.pageX + "," + d3.event.pageY + ")")
-            .style("left", (d3.event.pageX) + 20 + "px")
-            .style("top", (d3.event.pageY) - 30 + "px")
-            .text(d.text);
-        d3.select("#tooltip").classed("hidden", false);
+            dust.render(self.active_size_type, d, function(err, out) {
+                if (err) {
+                    console.log(err);
+                }
+                /*
+                tooltip.animate({
+                    'left': d3.event.offsetX,
+                    'top': d3.event.offsetY
+                }, 200);
+                */
+                tooltip.css('left', d3.event.pageX - self.vis_container.offset().left);
+                tooltip.css('top', d3.event.pageY - self.vis_container.offset().top - self.padding );
+
+                jQuery(tooltip).html(out);
+
+                if ( tooltip.outerWidth() + d3.event.pageX > jQuery('body').outerWidth() ) {
+                    tooltip.css('left', d3.event.pageX - tooltip.outerWidth() - self.vis_container.offset().left);
+                }
+                if ( tooltip.outerHeight() + d3.event.pageY > jQuery('body').outerHeight() ) {
+                    tooltip.css('top', d3.event.pageY - tooltip.outerHeight() - self.vis_container.offset().top 
+                        - (self.padding * 3));
+                }
+                tooltip.removeClass('hidden');
+                
+            });
         })
 
     .on("mouseout", function() {
 
         //Hide the tooltip
-        d3.select("#tooltip").classed("hidden", true);
+        tooltip.addClass('hidden');
     });
 }
 
 SpreadsheetToD3.prototype.set_possible_visualizations = function() {
     this.possible_visualizations = {}
-    for (i in this.desired_visualizations) {
+    this.possible_shapes = {}
+    this.size_types_desired = {};
+    for (var i = 0; i < this.desired_visualizations.length; i++) {
         var vis = this.desired_visualizations[i];
-        if (!this.first_vis) {
-            this.first_vis = vis; 
-        }
+        this.size_types_desired[vis.data] = vis;
 
-        var new_vis = new PremadeVis[vis](this.nodes, this.svg, this.options);
-        this.possible_visualizations[vis] = new_vis;
+        var tooltip_template = vis.tooltip_template 
+            ? vis.tooltip_template 
+            : '{text}';
+        var compiled_tooltip = dust.compile(tooltip_template, vis.data);
+        dust.loadSource(compiled_tooltip);
+
+
+        for (var j = 0; j < vis.visualizations.length; j++) {
+            var vis_type = vis.visualizations[j];
+            if (!this.possible_visualizations[vis_type]) {
+
+                var new_vis = new PremadeVis[vis_type](this.nodes, this.svg, this.options, this);
+                if (!this.first_vis) {
+                    this.first_vis = this.active_visualization = vis_type; 
+                }
+
+                for (var k = 0; k < new_vis.required_node_shapes.length; k++) {
+                    var shape_type = new_vis.required_node_shapes[k];
+                    if (!this.possible_shapes[ shape_type ] ) {
+                        if (!this.first_shape) {
+                            this.first_shape = shape_type;
+                        }
+
+                        this.possible_shapes[ shape_type ] = 
+                            new NodeShapeType[ shape_type ](this.nodes, this.options, this); 
+                    }
+                }
+                this.possible_visualizations[vis_type] = new_vis;
+            }
+
+        }
     }
 };
