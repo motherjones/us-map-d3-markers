@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,29 +7,28 @@
   <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
 
-<link href="style.css" rel="stylesheet" media="screen">
+<link href="css/style.css" rel="stylesheet" media="screen">
 </head>
 <body>
-	
-	<div id="bubble-mapper">
-	<section id="hed">
-		<h3>Did Your State Make it Harder or Easier to Have a Gun in 2013?</h3>
-		<p>Total number of laws passed in tk tk</p>
-	</section>
+    
+    <div id="bubble-mapper">
+    <section id="hed">
+        <h3>Renewable Energy Consumption by State</h3>
+        <p>Consumption in billions of BTUs, in 2011.<br/> (One BTU raises the temperature of one pound of water by 1&deg;F).</p>
+    </section>
   <div id="sorts"></div>
   <div class="clear" style="clear:both"></div>
 
   <div id="container"></div>
 
 
-  <script type="text/javascript" src="jquery-latest.js"></script>
-  <script type="text/javascript" src="d3.v2.min.js"></script>
-  <script type="text/javascript" src="tabletop.js"></script>
-  <script type="text/javascript" src="premade_visualizations.js"></script>
-  <script type="text/javascript" src="node_shape_types.js"></script>
-  <script type="text/javascript" src="spreadsheet_to_d3.js"></script>
-  <script type="text/javascript" src="center_of_path_element.js"></script>
-  <script type="text/javascript" src="dust-full-1.2.3.min.js"></script>
+  <script type="text/javascript" src="js/jquery-latest.js"></script>
+  <script type="text/javascript" src="js/d3.v2.min.js"></script>
+  <script type="text/javascript" src="js/tabletop.js"></script>
+  <script type="text/javascript" src="js/premade_visualizations.js"></script>
+  <script type="text/javascript" src="js/spreadsheet_to_d3.js"></script>
+  <script type="text/javascript" src="js/center_of_path_element.js"></script>
+  <script type="text/javascript" src="js/dust-full-1.2.3.min.js"></script>
 
   <script type="text/javascript">
     //URL to public google spreadsheet
@@ -41,48 +41,32 @@
         h : 400,
         //padding within visualization
         padding : 20,
+        // for list view. how many items you want to show at once
+        max_list_items : 20,
+
+        // you probably don't want to use this, it tells everything to scale against the same column
+        scale_against : 'sizetotal',
+
+        // if your column doesn't start with this, it won't get a size button for it
+        // this is a regular expression, ask for help if you don't know what that means
+        size_type_signifier : /^size/,
 
         // this array says which visualizations we want
         //right now we only have map, force, and list
         desired_visualizations : [
-            {
-                'data' : 'sizehydro',
-                'label' : 'Hydro Elecetrics',
-                'visualizations' : [
-                    'map',
-                    'list',
-                ],
-                'scale_against' : 'sizetotal',
-                'max_list_items' : 20,
-                'tooltip_template':'\
-                    <h3>{state}</h3> \
-                    <span>(In billions of BTUs)</span> \
-                    <p>Solar: {commassolar}</p> \
-                    <p>Wind: {commaswind}</p> \
-                    <p>Hydroelectric: {commashydro}</p> \
-                    <p>Geothermal: {commasgeo}</p> \
-                    <p>Total: {commastotal}</p> \
-                ',
-            },
-            {
-                'data' : 'sizesolar',
-                'label' : 'solar powered',
-                'visualizations' : [
-                    'map',
-                ],
-                'scale_against' : 'sizetotal',
-                'max_list_items' : 20,
-                'tooltip_template':'\
-                    <h3>{state}</h3> \
-                    <span>(In billions of BTUs)</span> \
-                    <p>Solar: {commassolar}</p> \
-                    <p>Wind: {commaswind}</p> \
-                    <p>Hydroelectric: {commashydro}</p> \
-                    <p>Geothermal: {commasgeo}</p> \
-                    <p>Total: {commastotal}</p> \
-                ',
-            },
+            'map',
+//            'force',
+            'list',
         ],
+
+        tooltip_template: '<h3>{state}</h3> \
+            <span>(In billions of BTUs)</span> \
+            <p>Solar: {commassolar}</p> \
+            <p>Wind: {commaswind}</p> \
+            <p>Hydroelectric: {commashydro}</p> \
+            <p>Geothermal: {commasgeo}</p> \
+            <p>Total: {commastotal}</p> \
+        ',
 
         // don't fuck with me unless you want a map that isn't the contental US
         map_projection : d3.geo.albersUsa(),
@@ -99,6 +83,7 @@
 
             Tabletop.init( { 
                 key: public_spreadsheet_url,
+                proxy : 'https://s3.amazonaws.com/mj-tabletop-proxy',
                 callback: function(dataset) {
                     new SpreadsheetToD3(dataset, options);
                 },
@@ -109,8 +94,8 @@
 
   </script>
 
-	<p id="source">By Ben Breedlove and Tasneem Raja, Mother Jones. Source: Energy Information Administration.</p>
+    <p id="source">By Ben Breedlove and Tasneem Raja, Mother Jones. Source: Energy Information Administration.</p>
 
-	</div>
+    </div>
   </body>
 </html>
